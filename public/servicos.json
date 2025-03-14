@@ -1,0 +1,24 @@
+[
+    {
+      "id": 1,
+      "nome": "Corte de Cabelo",
+      "descricao": "Corte de cabelo moderno e estiloso.",
+      "preco": 50.00,
+      "tempo": "30 minutos"
+    },
+    {
+      "id": 2,
+      "nome": "Manicure",
+      "descricao": "Cuidados com as unhas, incluindo esmaltação e design.",
+      "preco": 40.00,
+      "tempo": "45 minutos"
+    },
+    {
+      "id": 3,
+      "nome": "Hidratação Capilar",
+      "descricao": "Tratamento para cabelos secos e danificados.",
+      "preco": 70.00,
+      "tempo": "1 hora"
+    }
+  ]
+  

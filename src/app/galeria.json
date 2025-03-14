@@ -1,0 +1,11 @@
+[
+    { "id": 1, "titulo": "Corte Masculino", "descricao": "Um corte de cabelo moderno e estiloso.", "url": "/images/portfolio/1.png" },
+    { "id": 2, "titulo": "Unhas Decoradas", "descricao": "Manicure profissional com design sofisticado.", "url": "/images/portfolio/2.png" },
+    { "id": 3, "titulo": "Tratamento Capilar", "descricao": "Hidratação profunda para cabelos saudáveis.", "url": "/images/portfolio/3.png" },
+    { "id": 4, "titulo": "Corte Feminino", "descricao": "Corte moderno e elegante para mulheres.", "url": "/images/portfolio/4.png" },
+    { "id": 5, "titulo": "Penteado para Festa", "descricao": "Penteados sofisticados para ocasiões especiais.", "url": "/images/portfolio/5.png" },
+    { "id": 6, "titulo": "Maquiagem Profissional", "descricao": "Makeup para todos os tipos de pele e estilos.", "url": "/images/portfolio/6.png" },
+    { "id": 7, "titulo": "Design de Sobrancelhas", "descricao": "Modelagem perfeita para realçar o olhar.", "url": "/images/portfolio/7.png" },
+    { "id": 8, "titulo": "Escova Progressiva", "descricao": "Alisamento de cabelo com efeito duradouro.", "url": "/images/portfolio/8.png" }
+  ]
+  

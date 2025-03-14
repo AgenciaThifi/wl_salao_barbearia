@@ -5,11 +5,15 @@ import Gallery from "./pages/galeria";
 import Catalogo from "./pages/catalogo";
 import Agendamento from "./pages/agendamento";
 import Contato from "./pages/contato";
-import config from "./config.json"; // Configurações personalizadas
-import galeria from "./galeria.json"; 
+import config from "./config.json";
+import galeria from "./galeria.json";
+import AgendamentoForm from './pages/agendamento/AgendamentoForm';
+import ListaAgendamentos from './pages/agendamento/ListaAgendamentos';
+import { obterAgendamentos } from "./services/firestoreService";  // Certifique-se que essa função existe
 
 export default function Home() {
   const [servicos, setServicos] = useState([]);
+  const [agendamentos, setAgendamentos] = useState<{ id: string; nome: string; telefone: string; horario: string; }[]>([]); // ✅ Criado estado para os agendamentos
 
   // Carregar os serviços dinamicamente
   useEffect(() => {
@@ -17,7 +21,7 @@ export default function Home() {
       try {
         const response = await fetch("/servicos.json");
         const data = await response.json();
-        setServicos(data); // Armazenar os serviços no estado
+        setServicos(data);
       } catch (error) {
         console.error("Erro ao carregar serviços:", error);
       }
@@ -25,6 +29,25 @@ export default function Home() {
 
     fetchServicos();
   }, []);
+
+  // 🔹 Função para carregar os agendamentos
+  useEffect(() => {
+    async function carregarAgendamentos() {
+      const dados = await obterAgendamentos();
+
+      // 🔹 Define o tipo correto para `agendamento`
+      const agendamentosCorrigidos = dados.map((agendamento: { id: string; nome?: string; telefone?: string; horario?: string }) => ({
+        id: agendamento.id,
+        nome: agendamento.nome || "",
+        telefone: agendamento.telefone || "",
+        horario: agendamento.horario || ""
+      }));
+
+      setAgendamentos(agendamentosCorrigidos);
+    }
+    carregarAgendamentos();
+  }, []);
+
 
   return (
     <div style={{ backgroundColor: config.cores.primaria, color: "#fff" }}>
@@ -44,7 +67,7 @@ export default function Home() {
       <main>
         <section id="catalogo">
           <h2>Nossos Serviços</h2>
-          <Catalogo servicos={servicos} /> {/* Passando a propriedade servicos para Catalogo */}
+          <Catalogo servicos={servicos} />
         </section>
 
         <section id="galeria">
@@ -52,11 +75,7 @@ export default function Home() {
           <div className="gallery">
             {galeria.map((img, index) => (
               <div key={index} className="relative cursor-pointer">
-                <img
-                  src={img.url}  // Usando a URL das imagens do JSON
-                  alt={img.titulo}
-                  style={{ width: "200px", margin: "10px" }}
-                />
+                <img src={img.url} alt={img.titulo} style={{ width: "200px", margin: "10px" }} />
               </div>
             ))}
           </div>
@@ -67,7 +86,9 @@ export default function Home() {
         </section>
 
         <section id="agendamento">
-          <Agendamento servicos={servicos} /> {/* Passando a propriedade servicos para Agendamento */}
+          <h2>Agendamento</h2>
+          <AgendamentoForm setAgendamentos={setAgendamentos} /> {/* ✅ Passando a função para atualizar os agendamentos */}
+          <ListaAgendamentos agendamentos={agendamentos} />
         </section>
       </main>
 

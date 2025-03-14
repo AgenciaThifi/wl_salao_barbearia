@@ -1,0 +1,16 @@
+{
+    "nomeEmpresa": "Salão Modelo",
+    "logo": "/logo-salao.png",
+    "cores": {
+      "primaria": "#D81B60",
+      "secundaria": "#FFC107"
+    },
+    "cabecalho": "Bem-vindo ao Salão Modelo!",
+    "rodape": "© 2025 Salão Modelo - Todos os direitos reservados.",
+    "imagensGaleria": [
+      "/galeria1.jpg",
+      "/galeria2.jpg",
+      "/galeria3.jpg"
+    ]
+  }
+  

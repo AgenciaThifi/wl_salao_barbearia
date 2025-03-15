@@ -1,5 +1,8 @@
 import { db } from "../config/firebase";
-import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
+import { collection, addDoc, getDocs, query } from "firebase/firestore"; //Para Agendamentos
+import { deleteDoc, doc } from "firebase/firestore"; //Para catálogo de serviços
+
+/* ÁREA DE AGENDAMENTO DE HORÁRIOS */
 
 export interface Agendamento {
   id: string;
@@ -47,3 +50,48 @@ export async function obterAgendamentos(): Promise<Agendamento[]> {
     return [];
   }
 }
+
+
+/* ÁREA DO CATÁLOGO DE SERVIÇOS */
+
+export interface Servico {
+  id: string;
+  nome: string;
+  descricao: string;
+  preco: number;
+  tempo: string;
+}
+
+// Função para adicionar um novo serviço
+export const adicionarServico = async (servico: Omit<Servico, "id">) => {
+  try {
+    const docRef = await addDoc(collection(db, "servicos"), servico);
+    console.log("Serviço adicionado com sucesso!", docRef.id);
+  } catch (error) {
+    console.error("Erro ao adicionar serviço:", error);
+  }
+};
+
+// Função para excluir um serviço
+export const excluirServico = async (id: string) => {
+  try {
+    await deleteDoc(doc(db, "servicos", id));
+    console.log("Serviço excluído com sucesso!");
+  } catch (error) {
+    console.error("Erro ao excluir serviço:", error);
+  }
+};
+
+// Função para obter todos os serviços
+export const obterServicos = async (): Promise<Servico[]> => {
+  try {
+    const querySnapshot = await getDocs(collection(db, "servicos"));
+    return querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...(doc.data() as Omit<Servico, "id">),
+    }));
+  } catch (error) {
+    console.error("Erro ao obter serviços:", error);
+    return [];
+  }
+};

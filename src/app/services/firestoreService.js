@@ -29,9 +29,14 @@ export const obterHorariosDisponiveis = async (horariosPadrao) => {
 
 // Função para obter todos os agendamentos
 export async function obterAgendamentos() {
-  const snapshot = await firestore.collection("agendamentos").get();
-  return snapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(), // 🔹 Verifique se todos os campos existem no banco de dados!
-  }));
+  try {
+    const querySnapshot = await getDocs(collection(db, "agendamentos"));
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+  } catch (error) {
+    console.error("Erro ao obter agendamentos:", error);
+    return [];
+  }
 }

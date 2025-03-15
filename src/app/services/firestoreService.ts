@@ -1,6 +1,7 @@
 import { db } from "../config/firebase";
 import { collection, addDoc, getDocs, query } from "firebase/firestore"; //Para Agendamentos
 import { deleteDoc, doc } from "firebase/firestore"; //Para catálogo de serviços
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"; //Para Galeria de Imagens
 
 /* ÁREA DE AGENDAMENTO DE HORÁRIOS */
 
@@ -52,6 +53,7 @@ export async function obterAgendamentos(): Promise<Agendamento[]> {
 }
 
 
+
 /* ÁREA DO CATÁLOGO DE SERVIÇOS */
 
 export interface Servico {
@@ -92,6 +94,55 @@ export const obterServicos = async (): Promise<Servico[]> => {
     }));
   } catch (error) {
     console.error("Erro ao obter serviços:", error);
+    return [];
+  }
+};
+
+
+
+/* ÁREA DE GALERIA DE IMAGENS */
+
+// Definindo a interface para a imagem
+export interface Imagem {
+  id: string;
+  titulo: string;
+  descricao: string;
+  url: string;
+}
+
+// Função para fazer upload da imagem
+export const uploadImagem = async (file: File, titulo: string, descricao: string) => {
+  const storage = getStorage();
+  const storageRef = ref(storage, `galeria/${file.name}`);
+
+  try {
+    // Fazendo o upload da imagem para o Firebase Storage
+    await uploadBytes(storageRef, file);
+    const url = await getDownloadURL(storageRef); // Pegando a URL da imagem
+
+    // Salvando os dados no Firestore
+    await addDoc(collection(db, "galeria"), {
+      titulo,
+      descricao,
+      url,
+    });
+    console.log("Imagem carregada e salva com sucesso!");
+  } catch (error) {
+    console.error("Erro ao carregar imagem:", error);
+  }
+};
+
+// Função para obter as imagens da galeria do Firestore
+export const obterGaleria = async (): Promise<Imagem[]> => {
+  try {
+    const querySnapshot = await getDocs(collection(db, "galeria"));
+    const galeria = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Imagem[];  // Assegurando que o tipo de retorno é um array de Imagem
+    return galeria;
+  } catch (error) {
+    console.error("Erro ao obter galeria:", error);
     return [];
   }
 };

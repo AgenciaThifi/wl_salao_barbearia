@@ -3,7 +3,8 @@ import { collection, addDoc, getDocs, query } from "firebase/firestore"; //Para 
 import { deleteDoc, doc } from "firebase/firestore"; //Para catálogo de serviços
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"; //Para Galeria de Imagens
 
-/* ÁREA DE AGENDAMENTO DE HORÁRIOS */
+
+/* ÁREA DE AGENDAMENTO DE HORÁRIOSs */
 
 export interface Agendamento {
   id: string;

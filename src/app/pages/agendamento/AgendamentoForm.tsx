@@ -1,15 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
-import { criarAgendamento, obterHorariosDisponiveis } from "../../services/firestoreService";
+import { Agendamento, criarAgendamento, obterHorariosDisponiveis } from "../../services/firestoreService";
 
 const horariosPadrao = ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"];
-
-type Agendamento = {
-  id: string;
-  nome: string;
-  telefone: string;
-  horario: string;
-};
 
 type AgendamentoFormProps = {
   setAgendamentos: React.Dispatch<React.SetStateAction<Agendamento[]>>;

@@ -36,20 +36,25 @@ export default function AgendamentoForm({ setAgendamentos }: AgendamentoFormProp
     if (!nome || !telefone || !horario) return;
   
     const novoAgendamento: Agendamento = {
-      id: crypto.randomUUID(),
+      id: crypto.randomUUID(), // Esse ID pode ser removido, pois o Firestore já gera um automaticamente
       nome,
       telefone,
       horario,
     };
-
-    setAgendamentos((prev: Agendamento[]) => [...prev, novoAgendamento]);
-
-    console.log("Agendamento realizado:", novoAgendamento);
   
-    // Limpar os campos após agendar
-    setNome("");
-    setTelefone("");
-    setHorario("");
+    try {
+      await criarAgendamento(novoAgendamento); // 🔹 Salva no Firestore
+      console.log("Agendamento salvo no Firestore!");
+  
+      setAgendamentos((prev: Agendamento[]) => [...prev, novoAgendamento]);
+  
+      // Limpar os campos após agendar
+      setNome("");
+      setTelefone("");
+      setHorario("");
+    } catch (error) {
+      console.error("Erro ao salvar o agendamento:", error);
+    }
   };
 
   return (

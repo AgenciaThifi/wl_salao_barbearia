@@ -11,9 +11,12 @@ import AgendamentoForm from './pages/agendamento/AgendamentoForm';
 import ListaAgendamentos from './pages/agendamento/ListaAgendamentos';
 import { obterAgendamentos } from "./services/firestoreService";  // Certifique-se que essa função existe
 
+
+
+
 export default function Home() {
   const [servicos, setServicos] = useState([]);
-  const [agendamentos, setAgendamentos] = useState<{ id: string; nome: string; telefone: string; horario: string; }[]>([]); // ✅ Criado estado para os agendamentos
+  const [agendamentos, setAgendamentos] = useState<{ id: string; nome: string; telefone: string; horario: string; }[]>([]);
 
   // Carregar os serviços dinamicamente
   useEffect(() => {

@@ -22,6 +22,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/pages/agendamento/AgendamentoForm.tsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/pages/agendamento/AgendamentoForm.tsx", "src/app/pages/catalogo.tsx", "src/app/pages/catalogo.tsx"],
   "exclude": ["node_modules"]
 }

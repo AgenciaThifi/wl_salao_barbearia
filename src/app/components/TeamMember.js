@@ -1,3 +1,5 @@
+/* a ser implementado */
+
 const TeamMember = ({ name, position, photo, socialLinks }) => (
     <div className="flex flex-col items-center p-4 bg-white shadow-lg rounded-2xl w-64">
       <img src={photo} alt={name} className="w-24 h-24 rounded-full mb-3" />

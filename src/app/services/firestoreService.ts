@@ -105,8 +105,8 @@ export const obterServicos = async (): Promise<Servico[]> => {
 // Definindo a interface para a imagem
 export interface Imagem {
   id: string;
-  titulo: string;
-  descricao: string;
+  titulo?: string;
+  descricao?: string;
   url: string;
 }
 
@@ -144,5 +144,15 @@ export const obterGaleria = async (): Promise<Imagem[]> => {
   } catch (error) {
     console.error("Erro ao obter galeria:", error);
     return [];
+  }
+};
+
+// Função para adicionar imagem manualmente via URL
+export const adicionarImagemManual = async (url: string, titulo: string, descricao: string) => {
+  try {
+    await addDoc(collection(db, "galeria"), { titulo, descricao, url });
+    console.log("Imagem adicionada manualmente com sucesso!");
+  } catch (error) {
+    console.error("Erro ao adicionar imagem manualmente:", error);
   }
 };

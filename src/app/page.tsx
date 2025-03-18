@@ -8,7 +8,15 @@ import Agendamento from "./pages/agendamento";
 import Contato from "./pages/contato";
 import config from "./config.json";
 import galeria from "./galeria.json";
+
+import Image from "next/image";
+import AgendamentoForm from "./pages/agendamento/AgendamentoForm";
+import ListaAgendamentos from "./pages/agendamento/ListaAgendamentos";
+import { Servico, obterAgendamentos, obterServicos } from "./services/firestoreService";  // Função para obter serviços do Firestore
+import { Imagem, obterGaleria } from "./services/firestoreService";  // Função de upload
+import UploadImagem from "./components/UploadImagem";
 import styles from './components/styles/scheduling.module.css';
+
 export default function Home() {
   // State
   const [servicos, setServicos] = useState([]);
@@ -48,11 +56,17 @@ export default function Home() {
           <div className="gallery">
             {galeria.map((img, index) => (
               <div key={index} className="relative cursor-pointer">
-                <img
-                  src={img.url}
-                  alt={img.titulo}
-                  style={{ width: "200px", margin: "10px" }}
-                />
+                {img.url ? (
+                  <Image
+                    src={img.url}
+                    alt={img.titulo}
+                    width={200}
+                    height={200}
+                    className="rounded-lg object-cover"
+                  />
+                ) : (
+                  <p>Imagem não disponível</p>
+                )}
               </div>
             ))}
           </div>

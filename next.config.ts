@@ -4,6 +4,14 @@ const nextConfig = {
   // Configura o diretório base para as páginas
   pagesDir: 'src/pages',
   // Você pode adicionar outras opções de configuração aqui
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "www.instagram.com",
+      },
+    ],
+  },
 }
 
 module.exports = nextConfig;

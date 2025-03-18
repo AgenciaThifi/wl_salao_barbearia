@@ -8,7 +8,7 @@ import Agendamento from "./pages/agendamento";
 import Contato from "./pages/contato";
 import config from "./config.json";
 import galeria from "./galeria.json";
-
+import styles from './components/styles/scheduling.module.css';
 export default function Home() {
   // State
   const [servicos, setServicos] = useState([]);
@@ -65,7 +65,9 @@ export default function Home() {
 
         {/* Scheduling Section */}
         <section id="agendamento">
-          <Agendamento servicos={servicos} />
+          <div className={styles.agendamento}>
+            <Agendamento servicos={servicos} />
+          </div>
         </section>
       </main>
 

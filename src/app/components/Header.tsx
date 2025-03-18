@@ -1,22 +1,28 @@
 "use client";
 
-import React from 'react';
-import Link from 'next/link';
-import Navbar from './Navbar.tsx';
+import React from "react";
+import Link from "next/link";
+import Navbar from "./Navbar.tsx";
+import styles from "./styles/Header.module.css";
+import Image from 'next/image';
+import Logo from './logo.png';
 
 interface HeaderProps {
   logo: string;
   cabecalho: string;
+  backgroundImage: string;
 }
 
-const Header: React.FC<HeaderProps> = ({ logo, cabecalho }) => {
+const Header: React.FC<HeaderProps> = ({ cabecalho }) => {
   return (
-    <header className="flex flex-col md:flex-row items-center justify-between p-4">
-      <div className="flex items-center mb-4 md:mb-0">
-        <img src={logo} alt="Logo" style={{ width: "150px" }} />
-        <h1 className="ml-4 text-2xl font-bold">{cabecalho}</h1>
+    <header className={styles.header} style={{ height: "800px" }}>
+      <Image src={Logo} alt="Logo" layout="fill" objectFit="cover" className={styles.backgroundImage} />
+      <div className={styles.overlay}>
+        <div className={styles.content}>
+          <h1 className={styles.title}>{cabecalho}</h1>
+        </div>
+        <Navbar />
       </div>
-      <Navbar />
     </header>
   );
 };

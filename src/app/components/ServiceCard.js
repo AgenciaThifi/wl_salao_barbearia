@@ -1,3 +1,4 @@
+import styles from './styles/Service.module.css';
 function ServiceCard({ servico }) {
     return (
       <div className="service-card">

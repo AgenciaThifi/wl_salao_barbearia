@@ -1,0 +1,78 @@
+.catalogoContainer {
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+  text-align: center;
+}
+
+.catalogoContainer h1 {
+  color: #000;
+  margin-bottom: 20px;
+}
+
+.addServiceContainer {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.addServiceContainer input {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  color: #000;
+}
+
+.addServiceContainer button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.addServiceContainer button:hover {
+  background-color: #0056b3;
+}
+
+.serviceList {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.serviceCard {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+  max-width: 300px;
+  text-align: left;
+  color: #000;
+}
+
+.swiper {
+  width: 100%;
+  padding: 20px 0;
+}
+
+.swiper-slide {
+  display: flex;
+  justify-content: center;
+}
+
+.swiper-button-next, .swiper-button-prev {
+  color: #007bff;
+}
+
+.swiper-pagination-bullet-active {
+  background: #007bff;
+}

@@ -1,0 +1,93 @@
+/* 🌟 Definição de variáveis globais */
+:root {
+  --primary-color: #d4af37;
+  --secondary-color: #333;
+  --background-color: linear-gradient(to bottom, #ffffff, #cccccc, var(--primary-color));
+  --footer-background: linear-gradient(to right, #1f1f1f, #3b3b3b);
+  --text-color: #333;
+}
+
+/* 🌍 Estilos globais */
+body {
+  background: var(--background-color);
+  color: var(--text-color);
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+}
+
+/* 🏠 Container principal */
+main {
+  padding: 20px;
+  text-align: center;
+}
+
+/* 🔹 Seções */
+section {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 10px;
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 900px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease-in-out;
+}
+
+section:hover {
+  transform: scale(1.02);
+}
+
+/* 🏷️ Títulos */
+h2 {
+  color: var(--primary-color);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+
+/* 🖼️ Galeria */
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
+  padding: 10px;
+}
+
+.gallery img {
+  border: 3px solid var(--primary-color);
+  border-radius: 5px;
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  width: 100%;
+  max-width: 250px;
+  height: auto;
+}
+
+.gallery img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* 📱 Responsividade */
+@media (max-width: 768px) {
+  section {
+      margin: 15px auto;
+      padding: 15px;
+  }
+
+  .gallery {
+      flex-direction: column;
+      align-items: center;
+  }
+}
+
+/* 🔚 Rodapé */
+footer {
+  background: var(--footer-background);
+  color: white;
+  text-align: center;
+  padding: 15px;
+  margin-top: 20px;
+  font-size: 14px;
+}

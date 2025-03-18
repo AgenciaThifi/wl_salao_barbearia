@@ -10,6 +10,9 @@ import AgendamentoForm from "./pages/agendamento/AgendamentoForm";
 import ListaAgendamentos from "./pages/agendamento/ListaAgendamentos";
 import { Servico, obterAgendamentos, obterServicos } from "./services/firestoreService";  // Função para obter serviços do Firestore
 import { Imagem, obterGaleria } from "./services/firestoreService";  // Função de upload
+import UploadImagem from "./components/UploadImagem";
+
+
 
 export default function Home() {
   const [servicos, setServicos] = useState<Servico[]>([]); // Tipo de serviço definido
@@ -90,14 +93,14 @@ export default function Home() {
               <div key={index} className="relative cursor-pointer">
                 {img.url ? (
                   <Image
-                    src={img.url} // Acessando a propriedade url
-                    alt={img.titulo} // Acessando a propriedade titulo
-                    width={200} // Ajuste o tamanho conforme necessário
-                    height={200} // Ajuste o tamanho conforme necessário
+                    src={img.url}
+                    alt={img.titulo}
+                    width={200}
+                    height={200}
                     className="rounded-lg object-cover"
                   />
                 ) : (
-                  <p>Imagem não disponível</p> // Opcional: mensagem caso a imagem não esteja disponível
+                  <p>Imagem não disponível</p>
                 )}
               </div>
             ))}

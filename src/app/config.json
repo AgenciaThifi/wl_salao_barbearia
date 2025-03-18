@@ -11,6 +11,8 @@
       "/galeria1.jpg",
       "/galeria2.jpg",
       "/galeria3.jpg"
-    ]
+    ],
+    "backgroundImage": "path/to/background-image.jpg"
+
   }
   

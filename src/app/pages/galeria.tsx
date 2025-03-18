@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { obterGaleria, Imagem } from "../services/firestoreService"; // Importando a interface Imagem
 import Image from "next/image";
+import UploadImagem from "../components/UploadImagem"; // Importa o componente de upload
 import styles from './styles/Gallery.module.css'; // Importando o CSS Module
 
 export default function Gallery() {
@@ -9,16 +10,17 @@ export default function Gallery() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
+  const carregarImagens = async () => {
+    try {
+      const imagens = await obterGaleria();
+      setImagens(imagens);
+    } catch (error) {
+      console.error("Erro ao carregar imagens:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchImages = async () => {
-      try {
-        const imagens = await obterGaleria();
-        setImagens(imagens);
-      } catch (error) {
-        console.error("Erro ao carregar imagens:", error);
-      }
-    };
-    fetchImages();
+    carregarImagens();
   }, []);
 
   const handlePrev = () => {

@@ -3,10 +3,11 @@ import { useState, useEffect } from "react";
 import { obterGaleria, Imagem } from "../services/firestoreService"; // Importando a interface Imagem
 import Image from "next/image";
 import UploadImagem from "../components/UploadImagem"; // Importa o componente de upload
-
+import styles from './styles/Gallery.module.css'; // Importando o CSS Module
 
 export default function Gallery() {
   const [imagens, setImagens] = useState<Imagem[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const carregarImagens = async () => {
@@ -22,40 +23,50 @@ export default function Gallery() {
     carregarImagens();
   }, []);
 
+  const handlePrev = () => {
+    setCurrentIndex((prevIndex) => (prevIndex === 0 ? imagens.length - 1 : prevIndex - 1));
+  };
+
+  const handleNext = () => {
+    setCurrentIndex((prevIndex) => (prevIndex === imagens.length - 1 ? 0 : prevIndex + 1));
+  };
+
   return (
-    <section className="py-10 px-4">
-      <h2 className="text-3xl font-bold text-center mb-6">Galeria</h2>
+    <section className={styles.galleryContainer}>
+      <h2 className={styles.galleryTitle}>Galeria</h2>
+      
+      <div className={styles.carousel}>
+        <button className={styles.prevButton} onClick={handlePrev}>❮</button>
+        
+        <div className={styles.carouselTrack} style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
+          {imagens.map((imagem: Imagem, index) => (
+            <div key={imagem.id} className={styles.carouselItem} onClick={() => setSelectedImage(imagem.url)}>
+              <Image
+                src={imagem.url}
+                alt={imagem.titulo}
+                width={600}
+                height={400}
+                className={styles.image}
+              />
+              <div className={styles.imageTitle}>{imagem.titulo}</div>
+            </div>
+          ))}
+        </div>
 
-      {/* Formulário de Upload */}
-      <UploadImagem onUpload={carregarImagens} />
-
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-6">
-        {imagens.map((imagem: Imagem) => (
-          <div
-            key={imagem.id}
-            className="relative cursor-pointer"
-            onClick={() => setSelectedImage(imagem.url)}
-          >
-            <Image
-              src={imagem.url}
-              alt={imagem.titulo}
-              width={300}
-              height={200}
-              className="rounded-lg object-cover"
-            />
-            <div className="absolute bottom-2 left-2 text-white">{imagem.titulo}</div>
-          </div>
-        ))}
+        <button className={styles.nextButton} onClick={handleNext}>❯</button>
       </div>
 
       {/* Modal de Imagem */}
       {selectedImage && (
-        <div
-          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70"
-          onClick={() => setSelectedImage(null)}
-        >
-          <div className="relative max-w-3xl w-full">
-            <Image src={selectedImage} alt="Imagem Ampliada" width={800} height={500} className="rounded-lg object-cover" />
+        <div className={styles.modal} onClick={() => setSelectedImage(null)}>
+          <div className={styles.modalContent}>
+            <Image
+              src={selectedImage}
+              alt="Imagem Ampliada"
+              width={800}
+              height={500}
+              className={styles.modalImage}
+            />
           </div>
         </div>
       )}

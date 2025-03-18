@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
+import styles from "./styles/scheduling.module.css";
 
-// Tipo para os dados do serviço
 const Scheduling = ({ servicos = [] }) => {
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
@@ -21,7 +21,7 @@ const Scheduling = ({ servicos = [] }) => {
   };
 
   return (
-    <div className="agendamento">
+    <div className={styles.agendamento}>
       <h2>Preencha os campos abaixo</h2>
       <form onSubmit={handleSubmit}>
         <div>

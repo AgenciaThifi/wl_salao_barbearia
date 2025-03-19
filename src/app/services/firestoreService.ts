@@ -1,7 +1,8 @@
 import { db } from "../config/firebase";
-import { collection, addDoc, getDocs, query } from "firebase/firestore"; //Para Agendamentos
-import { deleteDoc, doc } from "firebase/firestore"; //Para catálogo de serviços
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"; //Para Galeria de Imagens
+import { 
+  collection, addDoc, getDocs, query, Timestamp, deleteDoc, doc 
+} from "firebase/firestore";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 /* ÁREA DE AGENDAMENTO DE HORÁRIOS */
 
@@ -12,7 +13,6 @@ export interface Agendamento {
   horario: string;
 }
 
-// Função para criar um agendamento
 export const criarAgendamento = async (agendamento: Omit<Agendamento, "id">) => {
   try {
     await addDoc(collection(db, "agendamentos"), agendamento);
@@ -22,8 +22,6 @@ export const criarAgendamento = async (agendamento: Omit<Agendamento, "id">) => 
   }
 };
 
-
-// Função para obter os horários disponíveis
 export const obterHorariosDisponiveis = async (horariosPadrao: string[]): Promise<string[]> => {
   try {
     const q = query(collection(db, "agendamentos"));
@@ -33,12 +31,10 @@ export const obterHorariosDisponiveis = async (horariosPadrao: string[]): Promis
     return horariosPadrao.filter((hora: string) => !horariosOcupados.includes(hora));
   } catch (error) {
     console.error("Erro ao obter horários disponíveis:", error);
-    return horariosPadrao; // Retorna os horários padrões caso haja erro
+    return horariosPadrao;
   }
 };
 
-
-// Função para obter todos os agendamentos
 export async function obterAgendamentos(): Promise<Agendamento[]> {
   try {
     const querySnapshot = await getDocs(collection(db, "agendamentos"));
@@ -52,8 +48,6 @@ export async function obterAgendamentos(): Promise<Agendamento[]> {
   }
 }
 
-
-
 /* ÁREA DO CATÁLOGO DE SERVIÇOS */
 
 export interface Servico {
@@ -64,7 +58,6 @@ export interface Servico {
   tempo: string;
 }
 
-// Função para adicionar um novo serviço
 export const adicionarServico = async (servico: Omit<Servico, "id">) => {
   try {
     const docRef = await addDoc(collection(db, "servicos"), servico);
@@ -74,7 +67,6 @@ export const adicionarServico = async (servico: Omit<Servico, "id">) => {
   }
 };
 
-// Função para excluir um serviço
 export const excluirServico = async (id: string) => {
   try {
     await deleteDoc(doc(db, "servicos", id));
@@ -84,7 +76,6 @@ export const excluirServico = async (id: string) => {
   }
 };
 
-// Função para obter todos os serviços
 export const obterServicos = async (): Promise<Servico[]> => {
   try {
     const querySnapshot = await getDocs(collection(db, "servicos"));
@@ -98,33 +89,31 @@ export const obterServicos = async (): Promise<Servico[]> => {
   }
 };
 
-
-
 /* ÁREA DE GALERIA DE IMAGENS */
 
-// Definindo a interface para a imagem
 export interface Imagem {
   id: string;
-  titulo: string;
-  descricao: string;
-  url: string;
+  titulo?: string;
+  descricao?: string;
+  instagramUrl?: string;
+  isActive: boolean;
+  criadoEm: Timestamp;
 }
 
-// Função para fazer upload da imagem
-export const uploadImagem = async (file: File, titulo: string, descricao: string) => {
+export const uploadImagem = async (file: File, titulo: string, descricao: string, instagramUrl: string, isActive: boolean) => {
   const storage = getStorage();
   const storageRef = ref(storage, `galeria/${file.name}`);
 
   try {
-    // Fazendo o upload da imagem para o Firebase Storage
     await uploadBytes(storageRef, file);
-    const url = await getDownloadURL(storageRef); // Pegando a URL da imagem
+    const url = await getDownloadURL(storageRef);
 
-    // Salvando os dados no Firestore
     await addDoc(collection(db, "galeria"), {
       titulo,
       descricao,
-      url,
+      instagramUrl,
+      isActive,
+      criadoEm: Timestamp.now(),  // Certificando-se de usar o Timestamp correto
     });
     console.log("Imagem carregada e salva com sucesso!");
   } catch (error) {
@@ -132,17 +121,32 @@ export const uploadImagem = async (file: File, titulo: string, descricao: string
   }
 };
 
-// Função para obter as imagens da galeria do Firestore
 export const obterGaleria = async (): Promise<Imagem[]> => {
   try {
     const querySnapshot = await getDocs(collection(db, "galeria"));
-    const galeria = querySnapshot.docs.map((doc) => ({
+    return querySnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
-    })) as Imagem[];  // Assegurando que o tipo de retorno é um array de Imagem
-    return galeria;
+      criadoEm: doc.data().criadoEm instanceof Timestamp ? doc.data().criadoEm : Timestamp.now(), // Validando o tipo de criadoEm
+    })) as Imagem[];
   } catch (error) {
     console.error("Erro ao obter galeria:", error);
     return [];
   }
 };
+
+export const adicionarImagemManual = async (titulo: string, descricao: string, instagramUrl: string, isActive: boolean, criadoEm: Timestamp) => {
+  try {
+    await addDoc(collection(db, "galeria"), {
+      titulo,
+      descricao,
+      instagramUrl,
+      isActive,
+      criadoEm: Timestamp.now(),
+    });
+    console.log("Imagem adicionada manualmente com sucesso!");
+  } catch (error) {
+    console.error("Erro ao adicionar imagem manualmente:", error);
+  }
+};
+

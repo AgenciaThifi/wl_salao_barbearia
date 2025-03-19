@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import Navbar from "./Navbar.tsx";
+import Navbar from "./Navbar";
 import styles from "./styles/Header.module.css";
 import Image from 'next/image';
 import Logo from './logo.png';

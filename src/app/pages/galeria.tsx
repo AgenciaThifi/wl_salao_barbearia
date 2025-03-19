@@ -4,12 +4,13 @@ import { obterGaleria, adicionarImagemManual, Imagem } from "../services/firesto
 import Image from "next/image";
 import UploadImagem from "../components/UploadImagem";
 import styles from "./styles/Gallery.module.css";
+import { Timestamp } from 'firebase/firestore';
 
 export default function Gallery() {
   const [imagens, setImagens] = useState<Imagem[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [manualUrl, setManualUrl] = useState("");
+  const [instagramUrl, setInstagramUrl] = useState(""); // URL do Instagram para adicionar manualmente
   const [manualTitulo, setManualTitulo] = useState("");
   const [manualDescricao, setManualDescricao] = useState("");
 
@@ -35,45 +36,54 @@ export default function Gallery() {
   };
 
   const handleAdicionarManual = async () => {
-    if (!manualUrl.trim() || !manualTitulo.trim()) {
+    if (!instagramUrl.trim() || !manualTitulo.trim()) {
       alert("Preencha todos os campos.");
       return;
     }
-
-    // Verifica se a imagem já está na galeria (comparando pela URL)
-    const imagemExistente = imagens.find((img) => img.url === manualUrl);
+  
+    const imagemExistente = imagens.find((imagem) => imagem.instagramUrl === instagramUrl);
     if (imagemExistente) {
       alert("Imagem já adicionada.");
       return;
     }
-
+  
     try {
-      await adicionarImagemManual(manualUrl, manualTitulo, manualDescricao);
+      await adicionarImagemManual(instagramUrl, manualTitulo, manualDescricao, true, Timestamp.now());
       alert("Imagem adicionada com sucesso!");
-      setManualUrl("");
+  
+      const novaImagem: Imagem = {
+        id: Date.now().toString(),
+        titulo: manualTitulo,
+        descricao: manualDescricao,
+        instagramUrl,
+        isActive: true,
+        criadoEm: Timestamp.now(), // Simulando a adição manual da imagem
+      };
+      setImagens((prevImagens) => [...prevImagens, novaImagem]);
+  
+      // Limpa os campos de entrada
+      setInstagramUrl("");
       setManualTitulo("");
       setManualDescricao("");
-      carregarImagens(); // Atualiza a galeria
     } catch (error) {
       console.error("Erro ao adicionar imagem manual:", error);
       alert("Erro ao adicionar imagem.");
     }
   };
+  
 
   return (
     <section className={styles.galleryContainer}>
       <h2 className={styles.galleryTitle}>Galeria</h2>
 
-      {/* Upload de Imagens */}
-      <UploadImagem onUpload={carregarImagens} />
+      <UploadImagem onUpload={carregarImagens} /> {/* Upload de imagem */}
 
-      {/* Inserção Manual de URL */}
       <div className={styles.manualInputContainer}>
         <input
           type="text"
-          placeholder="URL da Imagem"
-          value={manualUrl}
-          onChange={(e) => setManualUrl(e.target.value)}
+          placeholder="URL do Instagram"
+          value={instagramUrl}
+          onChange={(e) => setInstagramUrl(e.target.value)}
           className={styles.manualInput}
         />
         <input
@@ -88,15 +98,14 @@ export default function Gallery() {
         </button>
       </div>
 
-      {/* Galeria */}
       <div className={styles.carousel}>
         <button className={styles.prevButton} onClick={handlePrev}>❮</button>
 
         <div className={styles.carouselTrack} style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
           {imagens.map((imagem: Imagem) => (
-            <div key={imagem.id} className={styles.carouselItem} onClick={() => setSelectedImage(imagem.url)}>
+            <div key={imagem.id} className={styles.carouselItem} onClick={() => setSelectedImage(imagem.instagramUrl || null)}>
               <Image
-                src={imagem.url}
+                src={imagem.instagramUrl || '/default-image.jpg'} // Aqui, você pode usar uma imagem padrão caso não haja URL
                 alt={imagem.titulo || 'Imagem sem título'}
                 width={600}
                 height={400}
@@ -110,7 +119,6 @@ export default function Gallery() {
         <button className={styles.nextButton} onClick={handleNext}>❯</button>
       </div>
 
-      {/* Modal de Imagem */}
       {selectedImage && (
         <div className={styles.modal} onClick={() => setSelectedImage(null)}>
           <div className={styles.modalContent}>

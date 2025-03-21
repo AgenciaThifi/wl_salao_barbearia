@@ -8,6 +8,28 @@ import { sendWhatsAppMessage } from "./WhatsAppBot";
 import { addEventToGoogleCalendar } from "./GoogleCalendarService";
 import { fetchAvailableSlots } from "./fetchAvailableSlots"; // Substitua pelo caminho correto
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const SalonBooking: React.FC = () => {
   const [date, setDate] = useState<string>("");
   const [time, setTime] = useState<string>("");

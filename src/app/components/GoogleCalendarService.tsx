@@ -19,7 +19,7 @@ export const addEventToGoogleCalendar = async (date, time, clientName) => {
     };
 
     const response = await axios.post(
-      `https://www.googleapis.com/calendar/v3/calendars/${CALENDAR_ID}/events`,
+      `exemple${CALENDAR_ID}/events`,
       event,
       {
         headers: {

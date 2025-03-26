@@ -34,7 +34,7 @@ const Navbar: React.FC = () => {
         <ul className={`${styles.navList} ${isMenuOpen ? styles.open : ''}`}>
           <li className={styles.navItem}>
             <Link 
-              href="#catalogo" 
+              href="/pages/catalogo" 
               className={styles.navLink}
               onClick={() => setIsMenuOpen(false)}
             >
@@ -43,7 +43,7 @@ const Navbar: React.FC = () => {
           </li>
           <li className={styles.navItem}>
             <Link 
-              href="#galeria" 
+              href="/pages/galeria" 
               className={styles.navLink}
               onClick={() => setIsMenuOpen(false)}
             >
@@ -52,7 +52,7 @@ const Navbar: React.FC = () => {
           </li>
           <li className={styles.navItem}>
             <Link 
-              href="#contato" 
+              href="/pages/contato" 
               className={styles.navLink}
               onClick={() => setIsMenuOpen(false)}
             >
@@ -61,12 +61,17 @@ const Navbar: React.FC = () => {
           </li>
           <li className={styles.navItem}>
             <Link 
-              href="#agendamento" 
+              href="/pages/agendamento" 
               className={styles.navLink}
               onClick={() => setIsMenuOpen(false)}
             >
               Agendamento
             </Link>
+          </li>
+          <li className={styles.navItem}>
+          <Link href="/ProductSale" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>
+            Produtos à Venda
+          </Link>
           </li>
         </ul>
       </div>

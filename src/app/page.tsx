@@ -6,6 +6,8 @@ import Catalogo from "./pages/catalogo";
 import Agendamento from "./pages/agendamento";
 import Contato from "./pages/contato";
 import config from "./config.json";
+import galeria from "./galeria.json";
+import SalonBooking from "./components/Agenda.tsx";
 import { obterGaleria, adicionarImagemManual } from "./services/firestoreService";
 import { Imagem } from "./services/firestoreService";
 import Image from "next/image";
@@ -166,9 +168,8 @@ export default function Home() {
         </section>
 
         <section id="agendamento">
-          <div className={styles.agendamento}>
-            <Agendamento servicos={servicos} />
-          </div>
+          <Agendamento servicos={servicos} />
+          <SalonBooking />
         </section>
       </main>
 

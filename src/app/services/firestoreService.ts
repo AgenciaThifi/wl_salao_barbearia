@@ -62,10 +62,12 @@ export const adicionarServico = async (servico: Omit<Servico, "id">) => {
   try {
     const docRef = await addDoc(collection(db, "servicos"), servico);
     console.log("Serviço adicionado com sucesso!", docRef.id);
+    return docRef;
   } catch (error) {
     console.error("Erro ao adicionar serviço:", error);
   }
 };
+
 
 export const excluirServico = async (id: string) => {
   try {

@@ -1,3 +1,4 @@
+// WhatsAppBot.tsx
 import axios from "axios";
 
 const TWILIO_ACCOUNT_SID = "SEU_TWILIO_ACCOUNT_SID";
@@ -5,10 +6,16 @@ const TWILIO_AUTH_TOKEN = "SEU_TWILIO_AUTH_TOKEN";
 const TWILIO_PHONE_NUMBER = "SEU_NUMERO_TWILIO";
 const ADMIN_PHONE_NUMBER = "NUMERO_DO_DONO";
 
-export const sendWhatsAppMessage = async (clientName, clientPhone, date, time) => {
+export const sendWhatsAppMessage = async (
+  clientName: string,
+  clientPhone: string,
+  date: string,
+  time: string,
+  serviceName?: string
+): Promise<void> => {
   try {
     const messageBody = `Agendamento confirmado! Cliente: ${clientName}, Data: ${date}, Hora: ${time}`;
-    
+
     // Enviar mensagem para o administrador
     await axios.post(
       `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`,

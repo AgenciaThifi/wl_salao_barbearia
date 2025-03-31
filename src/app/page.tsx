@@ -7,17 +7,19 @@ import Agendamento from "./pages/agendamento";
 import Contato from "./pages/contato";
 import config from "./config.json";
 import galeria from "./galeria.json";
-import SalonBooking from "./components/Agenda.tsx";
+import SalonBooking from "./components/Agenda";
 import { obterGaleria, adicionarImagemManual } from "./services/firestoreService";
 import { Imagem } from "./services/firestoreService";
 import Image from "next/image";
 import styles from './components/styles/scheduling.module.css';
 import { Timestamp } from 'firebase/firestore';
 import GaleriaInstagram from "./components/GaleriaInstagram";
+import { Servico, obterServicos } from "./services/firestoreService";
+
 
 
 export default function Home() {
-  const [servicos, setServicos] = useState([]);
+  const [servicos, setServicos] = useState<Servico[]>([]);
   const [galeria, setGaleria] = useState<Imagem[]>([]);
   const [titulo, setTitulo] = useState("");
   const [descricao, setDescricao] = useState("");
@@ -27,8 +29,7 @@ export default function Home() {
   useEffect(() => {
     const fetchServicos = async () => {
       try {
-        const response = await fetch("/servicos.json");
-        const data = await response.json();
+        const data = await obterServicos();
         setServicos(data);
       } catch (error) {
         console.error("Erro ao carregar serviços:", error);
@@ -89,87 +90,19 @@ export default function Home() {
       <main>
         <section id="catalogo">
           <h2>Nossos Serviços</h2>
-          <Catalogo servicos={servicos} />
+          <Catalogo servicos={servicos} setServicos={setServicos} />
         </section>
 
         <section id="instagram">
           <GaleriaInstagram />
         </section>
-
-        {/*
-        <section id="galeria">
-          <h2>Galeria de Imagens</h2>
-          <div>
-            <input
-              type="text"
-              placeholder="Título"
-              value={titulo}
-              onChange={(e) => setTitulo(e.target.value)}
-            />
-            <input
-              type="text"
-              placeholder="Descrição"
-              value={descricao}
-              onChange={(e) => setDescricao(e.target.value)}
-            />
-            <input
-              type="text"
-              placeholder="URL da Imagem"
-              value={instagramUrl}
-              onChange={(e) => setInstagramUrl(e.target.value)}
-            />
-            <button onClick={handleAdicionarImagem}>Adicionar Imagem</button>
-          </div>
-
-          <div className="gallery">
-            {galeria.map((img, index) => (
-              <div key={index} className="relative cursor-pointer">
-                {img.instagramUrl ? (
-                  <img
-                    src={img.instagramUrl}
-                    alt={img.titulo || "Imagem sem título"}
-                    width={200}
-                    height={200}
-                    className="rounded-lg object-cover"
-                  />
-                ) : (
-                  <p>Imagem não disponível</p>
-                )}
-                <p>{img.titulo}</p>
-                <p>{img.descricao}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-        */}
-
-        {/* Seção de conteúdo do Instagram com URL dinâmica 
-        <section id="iframe-section">
-          <h2>Conteúdo Externo</h2>
-          <input
-            type="text"
-            placeholder="Cole a URL do post do Instagram"
-            value={instagramUrl}
-            onChange={(e) => setInstagramUrl(e.target.value)}
-          />
-          {instagramUrl && (
-            <iframe
-              src={instagramUrl}
-              width="100%"
-              height="600px"
-              style={{ border: 'none' }}
-              title="Conteúdo Externo"
-            ></iframe>
-          )}
-        </section>
-        */}
+        
         <section id="contato">
           <Contato />
         </section>
 
         <section id="agendamento">
-          <Agendamento servicos={servicos} />
-          <SalonBooking />
+        <SalonBooking servicos={servicos} />
         </section>
       </main>
 

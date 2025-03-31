@@ -1,3 +1,5 @@
+/*NÃO ESTÁ SENDO USADO*/ 
+
 import React from 'react';
 import Catalogo from "../pages/catalogo";
 import ServiceCard from '../ServiceCard';
@@ -18,3 +20,4 @@ const ServicesSection: React.FC<ServicesProps> = ({ servicos }) => {
 };
 
 export default ServicesSection;
+

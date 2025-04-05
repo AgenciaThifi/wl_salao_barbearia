@@ -7,12 +7,15 @@ export async function POST(req: Request) {
   try {
     const { date, time, clientName, serviceName, serviceDuration, serviceDescription } = await req.json();
 
-    if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-      throw new Error("A variável GOOGLE_APPLICATION_CREDENTIALS não está definida.");
+    const rawCredentials = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
+    if (!rawCredentials) {
+      throw new Error("A variável GOOGLE_SERVICE_ACCOUNT_JSON não está definida.");
     }
 
+    const credentials = JSON.parse(rawCredentials);
+
     const auth = new google.auth.GoogleAuth({
-      keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+      credentials,
       scopes: ["https://www.googleapis.com/auth/calendar"],
     });
 

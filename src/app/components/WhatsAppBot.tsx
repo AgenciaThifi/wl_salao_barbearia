@@ -1,4 +1,34 @@
 // WhatsAppBot.tsx
+import React from 'react';
+
+interface WhatsAppBotProps {
+  clientName: string;
+  serviceName: string;
+  date: string;
+  time: string;
+}
+
+const WhatsAppBot: React.FC<WhatsAppBotProps> = ({ clientName, serviceName, date, time }) => {
+  const handleSubmit = () => {
+    const numeroWhatsApp = "+5561982541672"; // Número do administrador
+    const mensagem = `Olá, ${clientName}! Seu agendamento para ${serviceName} foi confirmado para o dia ${date} às ${time}.`;
+
+    const urlWhatsApp = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensagem)}`;
+
+    window.open(urlWhatsApp, "_blank");
+  };
+
+  return (
+    <button onClick={handleSubmit}>
+      Enviar Mensagem
+    </button>
+  );
+};
+
+export default WhatsAppBot;
+
+
+/*
 import axios from "axios";
 
 const TWILIO_ACCOUNT_SID = "SEU_TWILIO_ACCOUNT_SID";
@@ -53,3 +83,4 @@ export const sendWhatsAppMessage = async (
     console.error("Erro ao enviar mensagem no WhatsApp:", error);
   }
 };
+*/

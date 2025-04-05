@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
 import 'swiper/css';
@@ -15,13 +15,17 @@ interface CatalogoProps {
 }
 
 function Catalogo({ servicos, setServicos }: CatalogoProps) {
-  // Estados para os campos do formulário
   const [nome, setNome] = useState('');
   const [descricao, setDescricao] = useState('');
   const [preco, setPreco] = useState('');
   const [tempo, setTempo] = useState('');
+  const [role, setRole] = useState('');
 
-  // Handler para adicionar um novo serviço
+  useEffect(() => {
+    const storedRole = localStorage.getItem("userRole");
+    setRole(storedRole || "");
+  }, []);
+
   const handleAdicionarServico = async () => {
     if (!nome.trim() || !descricao.trim() || !preco.trim() || !tempo.trim()) {
       alert("Preencha todos os campos");
@@ -42,11 +46,7 @@ function Catalogo({ servicos, setServicos }: CatalogoProps) {
           id: docRef.id,
           ...novoServico,
         };
-
-        // Atualiza o estado para adicionar o novo serviço à lista
         setServicos(prev => [...prev, serviceWithId]);
-
-        // Limpa os campos do formulário
         setNome('');
         setDescricao('');
         setPreco('');
@@ -57,11 +57,9 @@ function Catalogo({ servicos, setServicos }: CatalogoProps) {
     }
   };
 
-  // Handler para excluir um serviço
   const handleExcluirServico = async (id: string) => {
     try {
       await excluirServico(id);
-      // Atualiza o estado removendo o serviço excluído
       setServicos(prev => prev.filter(servico => servico.id !== id));
     } catch (error) {
       console.error("Erro ao excluir serviço: ", error);
@@ -72,43 +70,43 @@ function Catalogo({ servicos, setServicos }: CatalogoProps) {
     <div className={styles.catalogoContainer}>
       <h1>Catálogo de Serviços</h1>
 
-      {/* Formulário para adicionar serviço */}
-      <div className={styles.addServiceContainer}>
-        <h3>Adicionar Novo Serviço</h3>
-        <input
-          type="text"
-          className={styles.input}
-          placeholder="Nome do serviço"
-          value={nome}
-          onChange={(e) => setNome(e.target.value)}
-        />
-        <input
-          type="text"
-          className={styles.input}
-          placeholder="Descrição"
-          value={descricao}
-          onChange={(e) => setDescricao(e.target.value)}
-        />
-        <input
-          type="number"
-          className={styles.input}
-          placeholder="Preço"
-          value={preco}
-          onChange={(e) => setPreco(e.target.value)}
-        />
-        <input
-          type="text"
-          className={styles.input}
-          placeholder="Tempo"
-          value={tempo}
-          onChange={(e) => setTempo(e.target.value)}
-        />
-        <button className={styles.button} onClick={handleAdicionarServico}>
-          Adicionar
-        </button>
-      </div>
+      {role === "admin" && (
+        <div className={styles.addServiceContainer}>
+          <h3>Adicionar Novo Serviço</h3>
+          <input
+            type="text"
+            className={styles.input}
+            placeholder="Nome do serviço"
+            value={nome}
+            onChange={(e) => setNome(e.target.value)}
+          />
+          <input
+            type="text"
+            className={styles.input}
+            placeholder="Descrição"
+            value={descricao}
+            onChange={(e) => setDescricao(e.target.value)}
+          />
+          <input
+            type="number"
+            className={styles.input}
+            placeholder="Preço"
+            value={preco}
+            onChange={(e) => setPreco(e.target.value)}
+          />
+          <input
+            type="text"
+            className={styles.input}
+            placeholder="Tempo"
+            value={tempo}
+            onChange={(e) => setTempo(e.target.value)}
+          />
+          <button className={styles.button} onClick={handleAdicionarServico}>
+            Adicionar
+          </button>
+        </div>
+      )}
 
-      {/* Lista de serviços */}
       <Swiper
         modules={[Navigation, Pagination]}
         spaceBetween={20}
@@ -124,12 +122,14 @@ function Catalogo({ servicos, setServicos }: CatalogoProps) {
           <SwiperSlide key={servico.id}>
             <div className={styles.serviceCard}>
               <ServiceCard servico={servico} />
-              <button
-                className={styles.button}
-                onClick={() => handleExcluirServico(servico.id)}
-              >
-                Excluir
-              </button>
+              {role === "admin" && (
+                <button
+                  className={styles.button}
+                  onClick={() => handleExcluirServico(servico.id)}
+                >
+                  Excluir
+                </button>
+              )}
             </div>
           </SwiperSlide>
         ))}

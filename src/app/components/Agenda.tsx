@@ -3,12 +3,12 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
-import { sendWhatsAppMessage } from "./WhatsAppBot";
 import { fetchAvailableSlots } from "./fetchAvailableSlots";
 import { Servico } from "../services/firestoreService";
+import { getAdminPhoneNumber } from "../services/firestoreService";
 
 interface SalonBookingProps {
-  servicos: Servico[]; // Recebe a lista de serviços
+  servicos: Servico[];
 }
 
 const SalonBooking: React.FC<SalonBookingProps> = ({ servicos }) => {
@@ -16,7 +16,7 @@ const SalonBooking: React.FC<SalonBookingProps> = ({ servicos }) => {
   const [time, setTime] = useState<string>("");
   const [customerName, setCustomerName] = useState<string>("");
   const [customerPhone, setCustomerPhone] = useState<string>("");
-  const [selectedServiceId, setSelectedServiceId] = useState<string>(""); 
+  const [selectedServiceId, setSelectedServiceId] = useState<string>("");
   const [availableSlots, setAvailableSlots] = useState<{ start: string; end: string }[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -42,14 +42,9 @@ const SalonBooking: React.FC<SalonBookingProps> = ({ servicos }) => {
     setLoading(true);
 
     try {
-      // Acha o serviço selecionado (para pegar nome e tempo)
       const servicoSelecionado = servicos.find(s => s.id === selectedServiceId);
-      if (!servicoSelecionado) {
-        throw new Error("Serviço não encontrado.");
-      }
+      if (!servicoSelecionado) throw new Error("Serviço não encontrado.");
 
-      // Monta o corpo da requisição
-      // Vamos incluir o nome do serviço e o tempo na requisição
       const body = {
         date,
         time,
@@ -68,14 +63,12 @@ const SalonBooking: React.FC<SalonBookingProps> = ({ servicos }) => {
       const data = await response.json();
       if (!data.success) throw new Error(data.error);
 
-      // Envia mensagem para o WhatsApp (incluindo nome do serviço se quiser)
-      await sendWhatsAppMessage(
-        customerName,
-        customerPhone,
-        date,
-        time,
-        servicoSelecionado.nome // Passa o nome do serviço para a mensagem
-      );
+      const adminPhone = await getAdminPhoneNumber();
+      const msg = `Novo agendamento!\nCliente: ${customerName}\nServiço: ${servicoSelecionado.nome}\nData: ${date}\nHora: ${time}`;
+      const encodedMsg = encodeURIComponent(msg);
+      const whatsappURL = `https://wa.me/${adminPhone}?text=${encodedMsg}`;
+
+      window.open(whatsappURL, "_blank");
 
       alert("Agendamento confirmado!");
     } catch (error) {
@@ -93,44 +86,24 @@ const SalonBooking: React.FC<SalonBookingProps> = ({ servicos }) => {
 
         <div className="mb-4">
           <Label className="block mb-2">Nome</Label>
-          <Input
-            type="text"
-            value={customerName}
-            onChange={(e) => setCustomerName(e.target.value)}
-            className="w-full p-2 border rounded"
-          />
+          <Input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} className="w-full" />
         </div>
 
         <div className="mb-4">
           <Label className="block mb-2">Data</Label>
-          <Input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="w-full p-2 border rounded"
-          />
+          <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full" />
         </div>
 
         <div className="mb-4">
           <Label className="block mb-2">Hora</Label>
-          <Input
-            type="time"
-            value={time}
-            onChange={(e) => setTime(e.target.value)}
-            className="w-full p-2 border rounded"
-          />
+          <Input type="time" value={time} onChange={(e) => setTime(e.target.value)} className="w-full" />
         </div>
 
-        {/* NOVO CAMPO: Serviço */}
         <div className="mb-4">
           <Label className="block mb-2">Serviço</Label>
-          <select
-            value={selectedServiceId}
-            onChange={(e) => setSelectedServiceId(e.target.value)}
-            className="w-full p-2 border rounded"
-          >
+          <select value={selectedServiceId} onChange={(e) => setSelectedServiceId(e.target.value)} className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white">
             <option value="">Selecione um serviço...</option>
-            {servicos.map((servico) => (
+            {servicos.map(servico => (
               <option key={servico.id} value={servico.id}>
                 {servico.nome} - {servico.tempo}min - R${servico.preco}
               </option>
@@ -140,21 +113,10 @@ const SalonBooking: React.FC<SalonBookingProps> = ({ servicos }) => {
 
         <div className="mb-4">
           <Label className="block mb-2">WhatsApp do Cliente</Label>
-          <Input
-            type="tel"
-            value={customerPhone}
-            onChange={(e) => setCustomerPhone(e.target.value)}
-            className="w-full p-2 border rounded"
-          />
+          <Input type="tel" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} className="w-full" />
         </div>
 
-        <Button
-          className={`w-full p-2 rounded ${
-            loading ? "bg-gray-400" : "bg-green-500 hover:bg-green-600 text-white"
-          }`}
-          onClick={handleBooking}
-          disabled={loading}
-        >
+        <Button onClick={handleBooking} disabled={loading} className={`w-full ${loading ? "bg-gray-400" : "bg-green-500 hover:bg-green-600 text-white"}`}>
           {loading ? "Agendando..." : "Confirmar Agendamento"}
         </Button>
 
@@ -163,8 +125,7 @@ const SalonBooking: React.FC<SalonBookingProps> = ({ servicos }) => {
           {availableSlots.length > 0 ? (
             availableSlots.map((slot, index) => (
               <li key={index}>
-                {new Date(slot.start).toLocaleTimeString()} -{" "}
-                {new Date(slot.end).toLocaleTimeString()}
+                {new Date(slot.start).toLocaleTimeString()} - {new Date(slot.end).toLocaleTimeString()}
               </li>
             ))
           ) : (

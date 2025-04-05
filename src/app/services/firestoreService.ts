@@ -3,6 +3,7 @@ import {
   collection, addDoc, getDocs, query, Timestamp, deleteDoc, doc 
 } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { where } from "firebase/firestore";
 
 /* ÁREA DE AGENDAMENTO DE HORÁRIOS */
 
@@ -62,10 +63,12 @@ export const adicionarServico = async (servico: Omit<Servico, "id">) => {
   try {
     const docRef = await addDoc(collection(db, "servicos"), servico);
     console.log("Serviço adicionado com sucesso!", docRef.id);
+    return docRef;
   } catch (error) {
     console.error("Erro ao adicionar serviço:", error);
   }
 };
+
 
 export const excluirServico = async (id: string) => {
   try {
@@ -150,3 +153,85 @@ export const adicionarImagemManual = async (titulo: string, descricao: string, i
   }
 };
 
+/* ÁREA DE LOGIN */
+
+/**
+ * Verifica se o usuário existe em usuariosAdm ou usuariosConsumidor
+ * Retorna um objeto { email, role } se encontrar, ou null se não encontrar
+ */
+export async function loginUser(email: string, senha: string) {
+  // 1) Tenta encontrar em usuariosAdm
+  const adminRef = collection(db, "usuariosAdm");
+  let q = query(adminRef, where("email", "==", email), where("senha", "==", senha));
+  let snapshot = await getDocs(q);
+
+  if (!snapshot.empty) {
+    // Encontrou um admin
+    return { email, role: "admin" };
+  }
+
+  // 2) Se não achou no admin, tenta no consumidor
+  const consumerRef = collection(db, "usuariosConsumidor");
+  // Observação: pelo print, você tem "email1" em vez de "email"? Ajuste conforme seu Firestore.
+  q = query(consumerRef, where("email1", "==", email), where("senha", "==", senha));
+  snapshot = await getDocs(q);
+
+  if (!snapshot.empty) {
+    // Encontrou um cliente
+    return { email, role: "cliente" };
+  }
+
+  // 3) Se não encontrou em nenhum lugar, retorna null
+  return null;
+}
+
+// Retorna o telefone do administrador
+export const getAdminPhoneNumber = async (): Promise<string> => {
+  try {
+    const snapshot = await getDocs(collection(db, "usuariosAdm"));
+    const adminDoc = snapshot.docs.find(doc => !!doc.data().telefone);
+
+    if (adminDoc) {
+      return adminDoc.data().telefone;
+    } else {
+      throw new Error("Telefone do administrador não encontrado.");
+    }
+  } catch (error) {
+    console.error("Erro ao buscar telefone do administrador:", error);
+    return "+5561982541672"; // Telefone padrão de fallback
+  }
+};
+
+
+export async function registerConsumerUser(
+  email: string,
+  senha: string,
+  nome: string,
+  telefone: string,
+  preferenciaEmail: boolean,
+  preferenciaWhatsapp: boolean
+) {
+  // (Opcional) Verifica se já existe algum usuário com este e-mail
+  // Se você quiser evitar duplicados, pode fazer algo como:
+     const consumerRef = collection(db, "usuariosConsumidor");
+     const q = query(consumerRef, where("email1", "==", email));
+     const snapshot = await getDocs(q);
+    if (!snapshot.empty) {
+       throw new Error("Este e-mail já está em uso.");
+       }
+
+  const docRef = await addDoc(collection(db, "usuariosConsumidor"), {
+    email1: email,
+    senha,
+    nome,
+    telefone,
+    preferencias_notificacao: {
+      email: preferenciaEmail,
+      whatsapp: preferenciaWhatsapp,
+    },
+    // Se quiser adicionar mais campos ou data de criação:
+    criadoEm: Timestamp.now(),
+  });
+
+  return docRef.id;
+}

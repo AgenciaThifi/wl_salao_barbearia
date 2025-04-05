@@ -1,39 +1,44 @@
 import { NextResponse } from "next/server";
 import { google } from "googleapis";
 
-const CALENDAR_ID = "59f41da4ab32c7e6d8b4f21fda0be22f17ef0466eb7d6e85ac595600d6098e39@group.calendar.google.com"; // Substitua pelo ID real do calendário
+const CALENDAR_ID = "thifi.contato.oficial@gmail.com";
 
 export async function POST(req: Request) {
   try {
-    const { date, time, clientName } = await req.json();
+    const { date, time, clientName, serviceName, serviceDuration, serviceDescription } = await req.json();
 
-    // Verifica se a variável de ambiente está definida
-    if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-      throw new Error("A variável GOOGLE_APPLICATION_CREDENTIALS não está definida.");
+    const rawCredentials = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
+    if (!rawCredentials) {
+      throw new Error("A variável GOOGLE_SERVICE_ACCOUNT_JSON não está definida.");
     }
 
-    // Autenticação com as credenciais do arquivo
+    const credentials = JSON.parse(rawCredentials);
+
     const auth = new google.auth.GoogleAuth({
-      keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS,
-      scopes: ['https://www.googleapis.com/auth/calendar'],
+      credentials,
+      scopes: ["https://www.googleapis.com/auth/calendar"],
     });
 
     const calendar = google.calendar({ version: "v3", auth });
+    
+    // Cria a data de início
+    const startDateTime = new Date(`${date}T${time}`);
+    const endDateTime = new Date(startDateTime.getTime() + parseInt(serviceDuration) * 60000);
 
-    const startDateTime = `${date}T${time}:00`;
-    const endTimeHour = (parseInt(time.split(":")[0]) + 1).toString().padStart(2, "0");
-    const endDateTime = `${date}T${endTimeHour}:${time.split(":")[1]}:00`;
+    const tempoEmMinutos = parseInt(serviceDuration, 10) || 60;
+    const startDateObj = new Date(startDateTime);
+    startDateObj.setMinutes(startDateObj.getMinutes() + tempoEmMinutos);
 
     const event = {
-      summary: `Agendamento: ${clientName}`,
-      description: `Agendamento feito por ${clientName} no salão.`,
+      summary: `Agendamento: ${clientName} - ${serviceName}`,
+      description: `Agendamento feito por ${clientName} para o serviço: ${serviceName}.\nDescrição do serviço: ${serviceDescription}`,
       start: {
-        dateTime: startDateTime,
-        timeZone: "America/Sao_Paulo",
+        dateTime: startDateTime.toISOString(),
+        timeZone: 'America/Sao_Paulo',
       },
       end: {
-        dateTime: endDateTime,
-        timeZone: "America/Sao_Paulo",
+        dateTime: endDateTime.toISOString(),
+        timeZone: 'America/Sao_Paulo',
       },
     };
 

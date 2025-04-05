@@ -3,22 +3,26 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
-import { sendWhatsAppMessage } from "./WhatsAppBot";
 import { fetchAvailableSlots } from "./fetchAvailableSlots";
+import { Servico } from "../services/firestoreService";
+import { getAdminPhoneNumber } from "../services/firestoreService";
 
-const SalonBooking: React.FC = () => {
+interface SalonBookingProps {
+  servicos: Servico[];
+}
+
+const SalonBooking: React.FC<SalonBookingProps> = ({ servicos }) => {
   const [date, setDate] = useState<string>("");
   const [time, setTime] = useState<string>("");
   const [customerName, setCustomerName] = useState<string>("");
   const [customerPhone, setCustomerPhone] = useState<string>("");
+  const [selectedServiceId, setSelectedServiceId] = useState<string>("");
   const [availableSlots, setAvailableSlots] = useState<{ start: string; end: string }[]>([]);
-  const [loading, setLoading] = useState<boolean>(false); // Estado para bloquear o botão
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchSlots = async () => {
       const token = process.env.NEXT_PUBLIC_API_TOKEN;
- // Substitua pelo token real
-
       if (token) {
         await fetchAvailableSlots(token, setAvailableSlots);
       } else {
@@ -30,33 +34,48 @@ const SalonBooking: React.FC = () => {
   }, []);
 
   const handleBooking = async () => {
-    if (!date || !time || !customerName || !customerPhone) {
+    if (!date || !time || !customerName || !customerPhone || !selectedServiceId) {
       alert("Preencha todos os campos!");
       return;
     }
 
-    setLoading(true); // Desativa o botão enquanto processa
+    setLoading(true);
 
     try {
-      // Chama a API do Google Calendar
+      const servicoSelecionado = servicos.find(s => s.id === selectedServiceId);
+      if (!servicoSelecionado) throw new Error("Serviço não encontrado.");
+
+      const body = {
+        date,
+        time,
+        clientName: customerName,
+        serviceName: servicoSelecionado.nome,
+        serviceDuration: servicoSelecionado.tempo,
+        serviceDescription: servicoSelecionado.descricao,
+      };
+
       const response = await fetch("/api/google-calendar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ date, time, clientName: customerName }),
+        body: JSON.stringify(body),
       });
 
       const data = await response.json();
       if (!data.success) throw new Error(data.error);
 
-      // Envia mensagem para o WhatsApp
-      await sendWhatsAppMessage(customerName, customerPhone, date, time);
+      const adminPhone = await getAdminPhoneNumber();
+      const msg = `Novo agendamento!\nCliente: ${customerName}\nServiço: ${servicoSelecionado.nome}\nData: ${date}\nHora: ${time}`;
+      const encodedMsg = encodeURIComponent(msg);
+      const whatsappURL = `https://wa.me/${adminPhone}?text=${encodedMsg}`;
+
+      window.open(whatsappURL, "_blank");
 
       alert("Agendamento confirmado!");
     } catch (error) {
       console.error("Erro ao processar agendamento:", error);
       alert("Erro ao confirmar agendamento.");
     } finally {
-      setLoading(false); // Reativa o botão após finalizar
+      setLoading(false);
     }
   };
 
@@ -67,29 +86,37 @@ const SalonBooking: React.FC = () => {
 
         <div className="mb-4">
           <Label className="block mb-2">Nome</Label>
-          <Input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} className="w-full p-2 border rounded" />
+          <Input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} className="w-full" />
         </div>
 
         <div className="mb-4">
           <Label className="block mb-2">Data</Label>
-          <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full p-2 border rounded" />
+          <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full" />
         </div>
 
         <div className="mb-4">
           <Label className="block mb-2">Hora</Label>
-          <Input type="time" value={time} onChange={(e) => setTime(e.target.value)} className="w-full p-2 border rounded" />
+          <Input type="time" value={time} onChange={(e) => setTime(e.target.value)} className="w-full" />
+        </div>
+
+        <div className="mb-4">
+          <Label className="block mb-2">Serviço</Label>
+          <select value={selectedServiceId} onChange={(e) => setSelectedServiceId(e.target.value)} className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white">
+            <option value="">Selecione um serviço...</option>
+            {servicos.map(servico => (
+              <option key={servico.id} value={servico.id}>
+                {servico.nome} - {servico.tempo}min - R${servico.preco}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="mb-4">
           <Label className="block mb-2">WhatsApp do Cliente</Label>
-          <Input type="tel" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} className="w-full p-2 border rounded" />
+          <Input type="tel" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} className="w-full" />
         </div>
 
-        <Button
-          className={`w-full p-2 rounded ${loading ? "bg-gray-400" : "bg-green-500 hover:bg-green-600 text-white"}`}
-          onClick={handleBooking}
-          disabled={loading}
-        >
+        <Button onClick={handleBooking} disabled={loading} className={`w-full ${loading ? "bg-gray-400" : "bg-green-500 hover:bg-green-600 text-white"}`}>
           {loading ? "Agendando..." : "Confirmar Agendamento"}
         </Button>
 

@@ -5,7 +5,7 @@ function ServiceCard({ servico }) {
         <h2>{servico.nome}</h2>
         <p>{servico.descricao}</p>
         <p><strong>Preço:</strong> R${servico.preco}</p>
-        <p><strong>Tempo:</strong> {servico.tempo}</p>
+        <p><strong>Tempo:</strong> {servico.tempo} minutos</p>
       </div>
     );
   }

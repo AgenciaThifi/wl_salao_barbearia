@@ -20,8 +20,8 @@ const Navbar: React.FC = () => {
         <div className={styles.logo}>
           <Image src={logo} alt="Logo" width={100} height={50} />
         </div>
-        
-        {/* Mobile menu button */}
+
+        {/* Botão do menu mobile */}
         <button 
           className={styles.menuButton}
           onClick={toggleMenu}
@@ -30,11 +30,11 @@ const Navbar: React.FC = () => {
           ☰
         </button>
 
-        {/* Navigation links */}
+        {/* Links de navegação */}
         <ul className={`${styles.navList} ${isMenuOpen ? styles.open : ''}`}>
           <li className={styles.navItem}>
             <Link 
-              href="/pages/catalogo" 
+              href="#catalogo" 
               className={styles.navLink}
               onClick={() => setIsMenuOpen(false)}
             >
@@ -43,7 +43,7 @@ const Navbar: React.FC = () => {
           </li>
           <li className={styles.navItem}>
             <Link 
-              href="/pages/galeria" 
+              href="#galeria" 
               className={styles.navLink}
               onClick={() => setIsMenuOpen(false)}
             >
@@ -52,7 +52,7 @@ const Navbar: React.FC = () => {
           </li>
           <li className={styles.navItem}>
             <Link 
-              href="/pages/contato" 
+              href="#contato" 
               className={styles.navLink}
               onClick={() => setIsMenuOpen(false)}
             >
@@ -61,7 +61,7 @@ const Navbar: React.FC = () => {
           </li>
           <li className={styles.navItem}>
             <Link 
-              href="/pages/agendamento" 
+              href="#agendamento" 
               className={styles.navLink}
               onClick={() => setIsMenuOpen(false)}
             >
@@ -69,9 +69,13 @@ const Navbar: React.FC = () => {
             </Link>
           </li>
           <li className={styles.navItem}>
-          <Link href="/ProductSale" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>
-            Produtos à Venda
-          </Link>
+            <Link 
+              href="/login" 
+              className={styles.navLink}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Login
+            </Link>
           </li>
         </ul>
       </div>

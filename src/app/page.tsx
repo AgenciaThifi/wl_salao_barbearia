@@ -24,7 +24,7 @@ export default function Home() {
   const [titulo, setTitulo] = useState("");
   const [descricao, setDescricao] = useState("");
   const [url, setUrl] = useState("");
-  const [instagramUrl, setInstagramUrl] = useState(""); // Novo estado para armazenar URL do Instagrammmmmmmmmm
+  const [instagramUrl, setInstagramUrl] = useState(""); // Novo estado para armazenar URL do Instagram
 
   useEffect(() => {
     const fetchServicos = async () => {

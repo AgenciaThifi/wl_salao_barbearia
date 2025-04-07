@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { db } from "@/app/config/firebase.js";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
 import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
 import styles from "../components/styles/store.module.css";
@@ -84,6 +84,36 @@ export default function Store() {
     0
   );
 
+  const finalizarCompra = async () => {
+    try {
+      localStorage.setItem("compraFinalizada", JSON.stringify(cart));
+  
+      const response = await fetch("/api/pagamento", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          items: cart.map((item) => ({
+            title: item.product.name,
+            quantity: item.quantity,
+            unit_price: item.product.price,
+          })),
+        }),
+      });
+  
+      const data = await response.json();
+      if (data?.init_point) {
+        window.location.href = data.init_point;
+      } else {
+        alert("Erro ao redirecionar para o pagamento.");
+      }
+    } catch (err) {
+      console.error("Erro ao finalizar compra:", err);
+      alert("Erro ao finalizar compra.");
+    }
+  };
+
   return (
     <div className={styles.container}>
       <button onClick={() => router.push("/")} className={styles.backButton}>
@@ -145,9 +175,17 @@ export default function Store() {
           </div>
         ))}
         {cart.length > 0 && (
-          <div className={styles.cartTotal}>
-            <strong>Total: R$ {totalPrice.toFixed(2)}</strong>
-          </div>
+          <>
+            <div className={styles.cartTotal}>
+              <strong>Total: R$ {totalPrice.toFixed(2)}</strong>
+            </div>
+            <button
+              className={styles.checkoutButton}
+              onClick={finalizarCompra}
+            >
+              Finalizar Compra
+            </button>
+          </>
         )}
       </div>
     </div>

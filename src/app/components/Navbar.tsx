@@ -54,9 +54,11 @@ const Navbar: React.FC = () => {
           <li className={styles.navItem}>
             <Link href="add-product" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>
               Adicionar Produto
-
-            <Link 
-              href="/login" 
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/login"
               className={styles.navLink}
               onClick={() => setIsMenuOpen(false)}
             >

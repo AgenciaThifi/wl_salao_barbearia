@@ -198,7 +198,7 @@ export const getAdminPhoneNumber = async (): Promise<string> => {
     }
   } catch (error) {
     console.error("Erro ao buscar telefone do administrador:", error);
-    return "+5561982541672"; // Telefone padrão de fallback
+    return "+5561999999999"; // Telefone padrão de fallback
   }
 };
 

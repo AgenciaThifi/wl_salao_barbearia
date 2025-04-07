@@ -180,3 +180,19 @@
   color: #c04c91;
   font-weight: bold;
 }
+
+.checkoutButton {
+  background-color: #04b45f;
+  color: white;
+  padding: 10px 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  margin-top: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.checkoutButton:hover {
+  background-color: #039548;
+}

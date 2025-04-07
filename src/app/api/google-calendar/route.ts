@@ -7,34 +7,38 @@ export async function POST(req: Request) {
   try {
     const { date, time, clientName, serviceName, serviceDuration, serviceDescription } = await req.json();
 
-    if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-      throw new Error("A variável GOOGLE_APPLICATION_CREDENTIALS não está definida.");
+    const rawCredentials = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
+    if (!rawCredentials) {
+      throw new Error("A variável GOOGLE_SERVICE_ACCOUNT_JSON não está definida.");
     }
 
+    const credentials = JSON.parse(rawCredentials);
+
     const auth = new google.auth.GoogleAuth({
-      keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+      credentials,
       scopes: ["https://www.googleapis.com/auth/calendar"],
     });
 
     const calendar = google.calendar({ version: "v3", auth });
 
     // Cria a data de início
-    const startDateTime = `${date}T${time}:00`;
+    const startDateTime = new Date(${date}T${time});
+    const endDateTime = new Date(startDateTime.getTime() + parseInt(serviceDuration) * 60000);
+
     const tempoEmMinutos = parseInt(serviceDuration, 10) || 60;
     const startDateObj = new Date(startDateTime);
     startDateObj.setMinutes(startDateObj.getMinutes() + tempoEmMinutos);
-    const endDateTime = startDateObj.toISOString();
 
     const event = {
-      summary: `Agendamento: ${clientName} - ${serviceName}`,
-      description: `Agendamento feito por ${clientName} para o serviço: ${serviceName}.\nDescrição do serviço: ${serviceDescription}`,
+      summary: Agendamento: ${clientName} - ${serviceName},
+      description: Agendamento feito por ${clientName} para o serviço: ${serviceName}.\nDescrição do serviço: ${serviceDescription},
       start: {
-        dateTime: `${date}T${time}:00`,
-        timeZone: "America/Sao_Paulo",
+        dateTime: startDateTime.toISOString(),
+        timeZone: 'America/Sao_Paulo',
       },
       end: {
-        dateTime: endDateTime,
-        timeZone: "America/Sao_Paulo",
+        dateTime: endDateTime.toISOString(),
+        timeZone: 'America/Sao_Paulo',
       },
     };
 

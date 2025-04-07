@@ -1,84 +1,192 @@
+/* AddProduct.module.css */
+
 .container {
-  max-width: 600px;
-  margin: 2rem auto;
   padding: 2rem;
-  background-color: #ffffff;
-  border-radius: 1rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  background-color: #111;
+  color: #fff;
+  min-height: 100vh;
+  font-family: 'Segoe UI', sans-serif;
 }
 
 .backButton {
-  display: inline-block;
-  margin-bottom: 1rem;
-  background-color: #555;
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
+  color: #bbb;
   text-decoration: none;
+  margin-bottom: 1rem;
+  display: inline-block;
+  font-size: 0.95rem;
 }
 
 .title {
-  text-align: center;
-  font-size: 1.8rem;
+  font-size: 2rem;
+  font-weight: 600;
   margin-bottom: 2rem;
-  color: #333;
+  color: #ffb6c1;
 }
 
 .label {
   display: block;
-  font-weight: bold;
   margin-top: 1rem;
-  color: #333;
+  font-weight: bold;
+  color: #f8f8f8;
 }
 
-.input,
-.fileInput {
+.input, .fileInput {
   width: 100%;
   padding: 0.75rem;
-  margin-top: 0.25rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background-color: #fff;
-  color: #000;
+  border-radius: 12px;
+  border: none;
+  margin-top: 0.5rem;
+  background-color: #222;
+  color: #fff;
+  font-size: 1rem;
 }
 
-.input:focus,
-.fileInput:focus {
-  border-color: #ff69b4;
-  outline: none;
+.fileInput {
+  border: 1px solid #333;
+}
+
+.submitButton {
+  margin-top: 2rem;
+  padding: 1rem;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 12px;
+  width: 100%;
+  transition: background-color 0.3s;
+}
+
+.submitButton:hover {
+  background-color: #218838;
+}
+
+.submitButton:disabled {
+  background-color: #666;
+  cursor: not-allowed;
+}
+
+.toggleManageButtonHighlighted {
+  margin-top: 1.5rem;
+  background-color: #ffc107;
+  color: #111;
+  border: none;
+  font-weight: bold;
+  padding: 0.75rem;
+  border-radius: 12px;
+  width: 100%;
+  transition: background-color 0.3s;
+}
+
+.toggleManageButtonHighlighted:hover {
+  background-color: #e0a800;
 }
 
 .previewBox {
-  background-color: #f7f7f7;
-  margin-top: 1.5rem;
+  background-color: #222;
+  border: 1px solid #333;
   padding: 1rem;
-  border-radius: 10px;
-  color: #333;
+  border-radius: 12px;
+  margin-top: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
 }
 
 .previewImage {
   margin-top: 1rem;
-  border-radius: 10px;
+  border-radius: 8px;
 }
 
-.submitButton {
-  width: 100%;
-  padding: 0.75rem;
-  margin-top: 2rem;
-  background-color: #ff69b4;
-  color: white;
-  font-weight: bold;
+.managePanel {
+  margin-top: 3rem;
+}
+
+.manageTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #ffb6c1;
+}
+
+.manageItem {
+  display: flex;
+  align-items: center;
+  background-color: #1a1a1a;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border-radius: 16px;
+  box-shadow: 0 0 8px rgba(255, 182, 193, 0.2);
+  flex-wrap: wrap;
+}
+
+.manageImage {
+  border-radius: 12px;
+  margin-right: 1rem;
+}
+
+.manageInfo {
+  flex: 1;
+  color: #eee;
+  min-width: 200px;
+}
+
+.inputSmall {
+  margin-top: 0.3rem;
+  padding: 0.5rem;
+  margin-right: 0.5rem;
+  border-radius: 8px;
+  background-color: #333;
   border: none;
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.manageActions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.editButton {
+  background-color: #ffca2c;
+  color: #000;
+  border: none;
+  padding: 0.6rem;
   border-radius: 10px;
+  font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.3s ease;
 }
 
-.submitButton:hover {
-  background-color: #e055a0;
+.editButton:hover {
+  background-color: #ffc107;
 }
 
-.submitButton:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
+.deleteButton {
+  background-color: #dc3545;
+  color: #fff;
+  border: none;
+  padding: 0.6rem;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.deleteButton:hover {
+  background-color: #c82333;
+}
+
+.saveButton {
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.saveButton:hover {
+  background-color: #218838;
 }

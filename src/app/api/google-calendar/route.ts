@@ -20,9 +20,10 @@ export async function POST(req: Request) {
     });
 
     const calendar = google.calendar({ version: "v3", auth });
-
+    
     // Cria a data de início
-    const startDateTime = new Date(${date}T${time});
+
+    const startDateTime = new Date(`${date}T${time}`);
     const endDateTime = new Date(startDateTime.getTime() + parseInt(serviceDuration) * 60000);
 
     const tempoEmMinutos = parseInt(serviceDuration, 10) || 60;

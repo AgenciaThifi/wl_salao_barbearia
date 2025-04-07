@@ -20,6 +20,7 @@ const Navbar: React.FC = () => {
           <Image src={logo} alt="Logo" width={100} height={50} style={{ objectFit: "cover" }} />
         </div>
 
+
         <button className={styles.menuButton} onClick={toggleMenu} aria-label="Menu">
           ☰
         </button>
@@ -53,6 +54,13 @@ const Navbar: React.FC = () => {
           <li className={styles.navItem}>
             <Link href="add-product" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>
               Adicionar Produto
+
+            <Link 
+              href="/login" 
+              className={styles.navLink}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Login
             </Link>
           </li>
         </ul>

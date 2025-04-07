@@ -22,6 +22,7 @@ export async function POST(req: Request) {
     const calendar = google.calendar({ version: "v3", auth });
     
     // Cria a data de início
+
     const startDateTime = new Date(`${date}T${time}`);
     const endDateTime = new Date(startDateTime.getTime() + parseInt(serviceDuration) * 60000);
 
@@ -30,8 +31,8 @@ export async function POST(req: Request) {
     startDateObj.setMinutes(startDateObj.getMinutes() + tempoEmMinutos);
 
     const event = {
-      summary: `Agendamento: ${clientName} - ${serviceName}`,
-      description: `Agendamento feito por ${clientName} para o serviço: ${serviceName}.\nDescrição do serviço: ${serviceDescription}`,
+      summary: Agendamento: ${clientName} - ${serviceName},
+      description: Agendamento feito por ${clientName} para o serviço: ${serviceName}.\nDescrição do serviço: ${serviceDescription},
       start: {
         dateTime: startDateTime.toISOString(),
         timeZone: 'America/Sao_Paulo',

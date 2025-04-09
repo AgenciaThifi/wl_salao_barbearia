@@ -15,7 +15,7 @@ import styles from './components/styles/scheduling.module.css';
 import { Timestamp } from 'firebase/firestore';
 import GaleriaInstagram from "./components/GaleriaInstagram";
 import { Servico, obterServicos } from "./services/firestoreService";
-
+import FloatingContact from "./components/FloatingContact";
 
 
 export default function Home() {
@@ -105,7 +105,7 @@ export default function Home() {
         <SalonBooking servicos={servicos} />
         </section>
       </main>
-
+      <FloatingContact />
       <footer style={{ backgroundColor: config.cores.secundaria, color: "#000", padding: "10px" }}>
         <p>{config.rodape}</p>
       </footer>

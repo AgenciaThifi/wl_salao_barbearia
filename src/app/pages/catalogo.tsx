@@ -5,18 +5,22 @@ import { Navigation, Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
+
 import styles from '../components/styles/Catalogo.module.css';
 import ServiceCard from '../components/ServiceCard';
 import { Servico, adicionarServico, excluirServico } from '../services/firestoreService';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "@/app/config/firebase"; // ajuste esse caminho conforme seu projeto
 
-interface CatalogoProps {
-  servicos: Servico[];
-  setServicos: React.Dispatch<React.SetStateAction<Servico[]>>;
-}
+import { Servico, adicionarServico, excluirServico, obterServicos } from '../services/firestoreService';
+import { useUser } from "../context/UserContext";
 
-function Catalogo({ servicos, setServicos }: CatalogoProps) {
+function Catalogo() {
+  const { role, loading } = useUser();
+
+  console.log("🔎 Role atual no catalogo:", role);
+
+  const [servicos, setServicos] = useState<Servico[]>([]);
   const [nome, setNome] = useState('');
   const [descricao, setDescricao] = useState('');
   const [preco, setPreco] = useState('');
@@ -25,8 +29,11 @@ function Catalogo({ servicos, setServicos }: CatalogoProps) {
   const [role, setRole] = useState('');
 
   useEffect(() => {
-    const storedRole = localStorage.getItem("userRole");
-    setRole(storedRole || "");
+    const fetchServicos = async () => {
+      const lista = await obterServicos();
+      setServicos(lista);
+    };
+    fetchServicos();
   }, []);
 
   const handleAdicionarServico = async () => {
@@ -77,6 +84,8 @@ function Catalogo({ servicos, setServicos }: CatalogoProps) {
       console.error("Erro ao excluir serviço: ", error);
     }
   };
+
+  if (loading) return <p className={styles.loading}>Carregando...</p>;
 
   return (
     <div className={styles.catalogoContainer}>

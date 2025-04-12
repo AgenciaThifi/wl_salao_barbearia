@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useContext } from "react";
 import { useRouter } from "next/navigation";
 import { db } from "@/app/config/firebase.js";
 import { collection, getDocs } from "firebase/firestore";
 import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
 import styles from "../components/styles/store.module.css";
+import { useUser } from "../context/UserContext"; // 👈 Importa o contexto
 
 interface Product {
   id: string;
@@ -21,6 +22,8 @@ interface Product {
 
 export default function Store() {
   const router = useRouter();
+  const { role, loading } = useUser();
+
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<{ product: Product; quantity: number }[]>([]);
@@ -118,7 +121,6 @@ export default function Store() {
   const finalizarCompra = async () => {
     try {
       localStorage.setItem("compraFinalizada", JSON.stringify(cart));
-
       const response = await fetch("/api/pagamento", {
         method: "POST",
         headers: {
@@ -152,7 +154,15 @@ export default function Store() {
       </button>
 
       <h1 className={styles.title}>Loja de Produtos</h1>
-
+      {/* EXIBE O BOTÃO PARA ADICIONAR PRODUTO APENAS SE FOR ADMIN */}
+      {!loading && role === "admin" && (
+        <button
+          onClick={() => router.push("/add-product")}
+          className={styles.addProductButton}
+        >
+          + Adicionar Produto
+        </button>
+      )}
       <div className={styles.filtersContainer}>
         <input
           type="text"
@@ -187,7 +197,6 @@ export default function Store() {
           <option value="mostSold">Mais Vendidos</option>
         </select>
       </div>
-
       <div className={styles.productsGrid}>
         {filteredProducts.map((product) => (
           <Card key={product.id} className={styles.productCard}>
@@ -221,9 +230,7 @@ export default function Store() {
               className={styles.cartItemImage}
             />
             <div className={styles.cartItemDetails}>
-              <span className={styles.cartItemName}>
-                {item.product.name}
-              </span>
+              <span className={styles.cartItemName}>{item.product.name}</span>
               <span className={styles.cartItemPrice}>
                 R$ {(item.product.price * item.quantity).toFixed(2)}
               </span>
@@ -246,10 +253,7 @@ export default function Store() {
             <div className={styles.cartTotal}>
               <strong>Total: R$ {totalPrice.toFixed(2)}</strong>
             </div>
-            <button
-              className={styles.checkoutButton}
-              onClick={finalizarCompra}
-            >
+            <button className={styles.checkoutButton} onClick={finalizarCompra}>
               Finalizar Compra
             </button>
           </>

@@ -1,0 +1,65 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+/* Cada linha (uma para horas, outra para minutos) */
+.carouselRow {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto; /* Permite scroll horizontal */
+  white-space: nowrap;
+  gap: 0.5rem;
+  padding: 8px 0;
+  background-color: #fafafa;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  scrollbar-width: thin; /* Firefox */
+}
+
+/* Barra de rolagem customizada no Chrome, Safari, etc. */
+.carouselRow::-webkit-scrollbar {
+  height: 8px; /* Altura da barra de rolagem */
+}
+.carouselRow::-webkit-scrollbar-track {
+  background: #f0f0f0; 
+}
+.carouselRow::-webkit-scrollbar-thumb {
+  background: #ccc; 
+  border-radius: 4px;
+}
+.carouselRow::-webkit-scrollbar-thumb:hover {
+  background: #bbb; 
+}
+
+/* Cartão individual (hora ou minuto) */
+.card {
+  flex: 0 0 auto;
+  min-width: 54px;
+  text-align: center;
+  background-color: #fff;
+  border-radius: 6px;
+  padding: 8px;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s, color 0.2s;
+  border: 1px solid #ddd;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 4px; /* Ajuste sutil para separar um pouco */
+}
+
+/* Efeito de hover */
+.card:hover {
+  background-color: #f0f0f0;
+}
+
+/* Cartão selecionado */
+.selected {
+  background-color: #0070f3;
+  color: #fff;
+  font-weight: 600;
+  border: 1px solid #005bb5;
+}

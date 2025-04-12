@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
+import { getAuth } from "firebase/auth";
 
 // Configurações do Firebase (pegue no Firebase Console)
 const firebaseConfig = {
@@ -16,10 +17,11 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
+const auth = getAuth(app);
 
 // ⬇️ AQUI: aumenta o tempo de retry para evitar timeouts
 storage.maxUploadRetryTime = 10 * 60 * 1000; // 10 minutos
 storage.maxDownloadRetryTime = 10 * 60 * 1000;
 storage.maxOperationRetryTime = 10 * 60 * 1000;
 
-export { db, storage };
+export { db, storage, auth };

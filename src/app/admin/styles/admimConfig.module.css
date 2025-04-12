@@ -1,0 +1,152 @@
+
+  .container {
+    padding: 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: #f8f8f8;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .backButton {
+    background-color: transparent;
+    border: none;
+    color: #0070f3;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    cursor: pointer;
+  }
+  
+  .title {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: #333;
+  }
+  
+  .section {
+    margin-bottom: 1.5rem;
+  }
+  
+  .label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: #555;
+  }
+  
+  .textInput {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    
+    /* Cor do texto digitado */
+    color: #333; 
+  }
+  
+  /* Placeholder moderno (Chrome, Firefox, etc.) */
+  .textInput::placeholder {
+    color: #999;
+  }
+  
+  /* Placeholder para navegadores WebKit antigos */
+  .textInput::-webkit-input-placeholder {
+    color: #999;
+  }
+  
+  /* Placeholder para Firefox mais antigo */
+  .textInput:-moz-placeholder {
+    color: #999;
+  }
+  .textInput::-moz-placeholder {
+    color: #999;
+  }
+  .textInput:-ms-input-placeholder {
+    color: #999;
+  }
+  
+  .flexRow {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+  
+  .datePicker {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    color: #333; 
+  }
+  
+  .addButton {
+    padding: 0.75rem 1.5rem;
+    background-color: #28a745;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    cursor: pointer;
+  }
+  
+  .addButton:hover {
+    background-color: #218838;
+  }
+  
+  .daysContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+  
+  .dayCard {
+    display: flex;
+    align-items: center;
+    background-color: #0070f3;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-weight: 500;
+    gap: 8px;
+  }
+  
+  .removeDayButton {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  .removeDayButton:hover {
+    color: #ffdddd;
+  }
+  
+  .saveButton {
+    background-color: #0070f3;
+    color: #fff;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+  }
+  
+  .saveButton:hover {
+    background-color: #005bb5;
+  }
+  
+  .loading {
+    text-align: center;
+    margin-top: 2rem;
+    font-size: 1.25rem;
+    color: #333;
+  }
+  

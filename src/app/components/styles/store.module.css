@@ -196,3 +196,32 @@
 .checkoutButton:hover {
   background-color: #039548;
 }
+.filtersContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.searchInput,
+.selectInput {
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  color: #000;
+  background-color: #fdf6f9;
+  outline: none;
+  transition: all 0.2s ease-in-out;
+}
+
+.searchInput:focus,
+.selectInput:focus {
+  border-color: #c04c91;
+  box-shadow: 0 0 0 2px rgba(192, 76, 145, 0.2);
+}
+
+.searchInput::placeholder {
+  color: #888;
+}

@@ -11,6 +11,7 @@ import styles from "../components/styles/AddProduct.module.css";
 export default function AddProduct() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -44,6 +45,7 @@ export default function AddProduct() {
   const isFormValid =
     name.trim() !== "" &&
     description.trim() !== "" &&
+    category.trim() !== "" &&
     price.trim() !== "" &&
     stock.trim() !== "" &&
     !isNaN(Number(price)) &&
@@ -63,6 +65,7 @@ export default function AddProduct() {
       await addDoc(collection(db, "produtos"), {
         name,
         description,
+        category,
         price: Number(price),
         stock: Number(stock),
         url: downloadURL,
@@ -71,6 +74,7 @@ export default function AddProduct() {
       alert("Produto cadastrado com sucesso!");
       setName("");
       setDescription("");
+      setCategory("");
       setPrice("");
       setStock("");
       setImageFile(null);
@@ -114,6 +118,17 @@ export default function AddProduct() {
       <label className={styles.label}>Descrição</label>
       <input type="text" value={description} onChange={(e) => setDescription(e.target.value)} className={styles.input} />
 
+      <label className={styles.label}>Categoria</label>
+      <select value={category} onChange={(e) => setCategory(e.target.value)} className={styles.input}>
+        <option value="">Selecione uma categoria</option>
+        <option value="Shampoo">Shampoo</option>
+        <option value="Condicionador">Condicionador</option>
+        <option value="Máscara Capilar">Máscara Capilar</option>
+        <option value="Óleo/Leave-in">Óleo/Leave-in</option>
+        <option value="Acessórios">Acessórios</option>
+        <option value="Outros">Outros</option>
+      </select>
+
       <label className={styles.label}>Preço</label>
       <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} className={styles.input} />
 
@@ -128,6 +143,7 @@ export default function AddProduct() {
           <h2>Pré-visualização</h2>
           <p><strong>Nome:</strong> {name}</p>
           <p><strong>Descrição:</strong> {description}</p>
+          <p><strong>Categoria:</strong> {category}</p>
           <p><strong>Preço:</strong> R$ {price}</p>
           <p><strong>Estoque:</strong> {stock}</p>
           {imageUrl && (
@@ -165,6 +181,19 @@ export default function AddProduct() {
                       onChange={(e) => (prod.description = e.target.value)}
                       className={styles.inputSmall}
                     />
+                    <select
+                      defaultValue={prod.category || ""}
+                      onChange={(e) => (prod.category = e.target.value)}
+                      className={styles.inputSmall}
+                    >
+                      <option value="">Categoria</option>
+                      <option value="Shampoo">Shampoo</option>
+                      <option value="Condicionador">Condicionador</option>
+                      <option value="Máscara Capilar">Máscara Capilar</option>
+                      <option value="Óleo/Leave-in">Óleo/Leave-in</option>
+                      <option value="Acessórios">Acessórios</option>
+                      <option value="Outros">Outros</option>
+                    </select>
                     <input
                       type="number"
                       defaultValue={prod.price || 0}
@@ -188,6 +217,7 @@ export default function AddProduct() {
                   <>
                     <p><strong>{prod.name}</strong></p>
                     <p>{prod.description}</p>
+                    <p>Categoria: {prod.category || "—"}</p>
                     <p>R$ {Number(prod.price || 0).toFixed(2)} | Estoque: {prod.stock}</p>
                   </>
                 )}

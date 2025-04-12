@@ -16,6 +16,8 @@ interface Product {
   price: number;
   url: string;
   stock: number;
+  category?: string;
+  sold?: number;
 }
 
 export default function Store() {
@@ -23,16 +25,21 @@ export default function Store() {
   const { role, loading } = useUser();
 
   const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<{ product: Product; quantity: number }[]>([]);
+  const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [sortOption, setSortOption] = useState("");
 
   const fetchProducts = useCallback(async () => {
     try {
       const querySnapshot = await getDocs(collection(db, "produtos"));
       const productsList = querySnapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data(),
-      })) as Product[];
+        ...(doc.data() as Product),
+      }));
       setProducts(productsList);
+      setFilteredProducts(productsList);
     } catch (error) {
       console.error("Erro ao buscar produtos:", error);
     }
@@ -41,6 +48,30 @@ export default function Store() {
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
+
+  useEffect(() => {
+    let filtered = [...products];
+
+    if (search) {
+      filtered = filtered.filter((p) =>
+        p.name.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+
+    if (categoryFilter) {
+      filtered = filtered.filter((p) => p.category === categoryFilter);
+    }
+
+    if (sortOption === "priceAsc") {
+      filtered.sort((a, b) => a.price - b.price);
+    } else if (sortOption === "priceDesc") {
+      filtered.sort((a, b) => b.price - a.price);
+    } else if (sortOption === "mostSold") {
+      filtered.sort((a, b) => (b.sold || 0) - (a.sold || 0));
+    }
+
+    setFilteredProducts(filtered);
+  }, [search, categoryFilter, sortOption, products]);
 
   const addToCart = (product: Product) => {
     setCart((prevCart) => {
@@ -123,7 +154,6 @@ export default function Store() {
       </button>
 
       <h1 className={styles.title}>Loja de Produtos</h1>
-
       {/* EXIBE O BOTÃO PARA ADICIONAR PRODUTO APENAS SE FOR ADMIN */}
       {!loading && role === "admin" && (
         <button
@@ -133,14 +163,48 @@ export default function Store() {
           + Adicionar Produto
         </button>
       )}
+      <div className={styles.filtersContainer}>
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Buscar produto..."
+          className={styles.searchInput}
+        />
 
+        <select
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)}
+          className={styles.selectInput}
+        >
+          <option value="">Selecione uma categoria</option>
+          <option value="Shampoo">Shampoo</option>
+          <option value="Condicionador">Condicionador</option>
+          <option value="Máscara Capilar">Máscara Capilar</option>
+          <option value="Óleo/Leave-in">Óleo/Leave-in</option>
+          <option value="Acessórios">Acessórios</option>
+          <option value="Outros">Outros</option>
+        </select>
+
+        <select
+          value={sortOption}
+          onChange={(e) => setSortOption(e.target.value)}
+          className={styles.selectInput}
+        >
+          <option value="">Organizar por</option>
+          <option value="priceAsc">Preço: Menor para Maior</option>
+          <option value="priceDesc">Preço: Maior para Menor</option>
+          <option value="mostSold">Mais Vendidos</option>
+        </select>
+      </div>
       <div className={styles.productsGrid}>
-        {products.map((product) => (
+        {filteredProducts.map((product) => (
           <Card key={product.id} className={styles.productCard}>
             <img src={product.url} alt={product.name} className={styles.productImage} />
             <CardContent>
               <h2 className={styles.productTitle}>{product.name || "(Sem nome)"}</h2>
               <p className={styles.productDescription}>{product.description}</p>
+              <p className={styles.productCategory}><strong>Categoria:</strong> {product.category || "Não especificada"}</p>
               <p className={styles.productPrice}>R$ {product.price?.toFixed(2)}</p>
               <p className={styles.productStock}>Estoque: {product.stock ?? 0}</p>
               <Button

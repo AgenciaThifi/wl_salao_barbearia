@@ -11,7 +11,6 @@ import ServiceCard from '../components/ServiceCard';
 import { Servico, adicionarServico, excluirServico, obterServicos, atualizarServico } from '../services/firestoreService';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "@/app/config/firebase";
-
 import { useUser } from "../context/UserContext";
 
 function Catalogo() {

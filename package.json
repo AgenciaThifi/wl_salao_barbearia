@@ -15,6 +15,7 @@
     "googleapis": "^148.0.0",
     "mercadopago": "^1.5.14",
     "next": "15.2.2",
+    "nodemailer": "^6.10.1",
     "react": "^19.0.0",
     "react-datepicker": "^8.3.0",
     "react-dom": "^19.0.0",

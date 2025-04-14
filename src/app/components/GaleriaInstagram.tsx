@@ -11,16 +11,15 @@ const GaleriaInstagram: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  const accessToken = "IGAAQf77IXublBZAE1PSjBwalFzZA3FiczlIbFAxVmpOeUVyRi1CMHZADb3JkSjJ2VExsbXpQVmZA6TTF6enYyTHFydGxtZAkd4dFF6NVZANSjNrclpZAMzFPQjlkN0kxQXgxcFpWV01CUDlwOE14Q09zcFlUMjJxQ3NnN3pDY2RTa3ZAsYwZDZD"; // Substitua pelo seu token gerado
+  const accessToken = "IGAAQf77IXublBZAE1PSjBwalFzZA3FiczlIbFAxVmpOeUVyRi1CMHZADb3JkSjJ2VExsbXpQVmZA6TTF6enYyTHFydGxtZAkd4dFF6NVZANSjNrclpZAMzFPQjlkN0kxQXgxcFpWV01CUDlwOE14Q09zcFlUMjJxQ3NnN3pDY2RTa3ZAsYwZDZD"; // Substitua pelo seu token
 
   useEffect(() => {
-    // Função para buscar posts do Instagram
     const fetchInstagramPosts = async () => {
       try {
         const response = await axios.get(
           `https://graph.instagram.com/me/media?fields=id,media_type,media_url&access_token=${accessToken}`
         );
-        setPosts(response.data.data); // Atualiza o estado com os posts
+        setPosts(response.data.data);
         setLoading(false);
       } catch (error) {
         console.error("Erro ao buscar os posts:", error);
@@ -36,7 +35,14 @@ const GaleriaInstagram: React.FC = () => {
   }
 
   return (
-    <section style={{ textAlign: "center", padding: "20px", backgroundColor: "#f1f1f1" }}>
+    <section
+      id="GaleriaInstagram"
+      style={{
+        textAlign: "center",
+        padding: "20px",
+        backgroundColor: "#f1f1f1"
+      }}
+    >
       <h2 style={{ color: "#C19228", fontWeight: "bold" }}>Agência ThiFi</h2>
       <a
         href="https://www.instagram.com/thifi.agency/"

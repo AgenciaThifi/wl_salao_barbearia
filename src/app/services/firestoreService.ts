@@ -93,6 +93,15 @@ export const obterServicos = async (): Promise<Servico[]> => {
     return [];
   }
 };
+export const atualizarServico = async (id: string, servicoAtualizado: Partial<Servico>) => {
+  try {
+    const servicoRef = doc(db, "servicos", id);
+    await setDoc(servicoRef, servicoAtualizado, { merge: true });
+    console.log("Serviço atualizado com sucesso!");
+  } catch (error) {
+    console.error("Erro ao atualizar serviço:", error);
+  }
+};
 
 /* ÁREA DE GALERIA DE IMAGENS */
 

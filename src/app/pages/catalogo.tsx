@@ -8,11 +8,9 @@ import 'swiper/css/pagination';
 
 import styles from '../components/styles/Catalogo.module.css';
 import ServiceCard from '../components/ServiceCard';
-import { Servico, adicionarServico, excluirServico } from '../services/firestoreService';
+import { Servico, adicionarServico, excluirServico, obterServicos } from '../services/firestoreService';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "@/app/config/firebase"; // ajuste esse caminho conforme seu projeto
-
-import { Servico, adicionarServico, excluirServico, obterServicos } from '../services/firestoreService';
 import { useUser } from "../context/UserContext";
 
 function Catalogo() {
@@ -26,7 +24,6 @@ function Catalogo() {
   const [preco, setPreco] = useState('');
   const [tempo, setTempo] = useState('');
   const [imagem, setImagem] = useState<File | null>(null);
-  const [role, setRole] = useState('');
 
   useEffect(() => {
     const fetchServicos = async () => {

@@ -35,8 +35,8 @@ export default function Store() {
     try {
       const querySnapshot = await getDocs(collection(db, "produtos"));
       const productsList = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
         ...(doc.data() as Product),
+        id: doc.id,
       }));
       setProducts(productsList);
       setFilteredProducts(productsList);

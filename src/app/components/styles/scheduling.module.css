@@ -53,3 +53,10 @@
   .agendamento button:hover {
     background-color: #218838;
   }
+
+  .noSlots {
+    color: #333;
+    background-color: #fff;
+    padding: 0.5rem;
+    border-radius: 4px;
+  }

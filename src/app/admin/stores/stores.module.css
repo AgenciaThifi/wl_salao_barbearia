@@ -1,0 +1,186 @@
+/* Container principal */
+.container {
+    padding: 2rem;
+    background-color: #f5f5f5; /* fundo claro */
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+    color: #333; /* força o texto a ficar escuro */
+  }
+  
+  /* Título */
+  .heading {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    text-align: center;
+    color: #333;
+  }
+  
+  /* Botão para criar nova loja */
+  .addButton {
+    display: inline-block;
+    background-color: #0070f3;
+    color: #fff;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 2rem;
+    transition: background-color 0.2s ease;
+  }
+  
+  .addButton:hover {
+    background-color: #005bb5;
+  }
+  
+  /* Área que contém todos os cards */
+  .cardsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center; /* centraliza as cartas */
+  }
+  
+  /* Cada card de loja */
+  .card {
+    background-color: #fff;
+    width: 100%;
+    max-width: 300px; /* largura máxima */
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 1.5rem;
+    transition: transform 0.2s ease;
+  }
+  
+  .card:hover {
+    transform: translateY(-2px); /* pequeno efeito de “flutuar” ao passar mouse */
+  }
+  
+  /* Título dentro do card */
+  .card h2 {
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+    font-size: 1.2rem;
+    color: #0070f3;
+  }
+  
+  .card p {
+    margin: 0.25rem 0;
+    font-size: 0.95rem;
+    color: #444;
+  }
+  
+  /* Botões de ação (Editar / Excluir) */
+  .cardButtons {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+  
+  .cardButtons button {
+    flex: 1;
+    padding: 0.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.2s ease;
+  }
+  
+  /* Botão de Editar */
+  .cardButtons button:first-child {
+    background-color: #0070f3;
+    color: #fff;
+  }
+  
+  .cardButtons button:first-child:hover {
+    background-color: #005bb5;
+  }
+  
+  /* Botão de Excluir */
+  .cardButtons button:last-child {
+    background-color: #ff4444;
+    color: #fff;
+  }
+  
+  .cardButtons button:last-child:hover {
+    background-color: #cc0000;
+  }
+  
+
+  .formContainer {
+    background-color: #fff;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  .formTitle {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: #333;
+    text-align: center;
+  }
+  
+  .formGroup {
+    margin-bottom: 1.25rem;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .formLabel {
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+    color: #555;
+  }
+  
+  .formInput {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+  }
+  
+  .flexRow {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .saveButton {
+    background-color: #0070f3;
+    color: #fff;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 1rem;
+    font-size: 1rem;
+  }
+  
+  .saveButton:hover {
+    background-color: #005bb5;
+  }
+  
+  /* Para o DatePicker ou elementos adicionais */
+  .datePicker {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .backButton {
+    background-color: #0070f3;
+    color: #fff;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 1rem; /* espaço antes do botão de adicionar */
+    transition: background-color 0.2s ease;
+  }
+  
+  .backButton:hover {
+    background-color: #005bb5;
+  }
+  

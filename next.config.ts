@@ -10,8 +10,12 @@ const nextConfig = {
         protocol: "https",
         hostname: "www.instagram.com",
       },
+      {
+        protocol: "https",
+        hostname: "firebasestorage.googleapis.com",
+      },
     ],
   },
-}
+};
 
 module.exports = nextConfig;

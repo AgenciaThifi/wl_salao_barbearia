@@ -1,46 +1,41 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { loginUser, registerConsumerUser } from "../services/firestoreService";
-import { loginUserFirebaseAuth } from "../services/authService";
+import { loginUser, registerConsumerUser, loginUserFirebaseAuth } from "../services/firestoreService";
+
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
 
-  // Campos extras para registro
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
   const [prefEmail, setPrefEmail] = useState(false);
   const [prefWhatsapp, setPrefWhatsapp] = useState(false);
-
   const [isRegister, setIsRegister] = useState(false);
+
   const router = useRouter();
 
-  // LOGIN
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const user = await loginUser(email, senha);
-      if (!user) {
-        alert("Credenciais inválidas ou usuário não encontrado.");
-        return;
-      }
-      localStorage.setItem("userRole", user.role);
-      localStorage.setItem("userEmail", user.email);
-      alert(`Login bem-sucedido como: ${user.role}`);
+      // 1) Faz login no Auth
+      await loginUserFirebaseAuth(email, senha);
+  
+      // 2) Pronto, onAuthStateChanged dispara => UserContext define role
+      alert("Login bem-sucedido!");
       router.push("/");
     } catch (error) {
       console.error("Erro ao fazer login:", error);
       alert("Ocorreu um erro ao fazer login.");
     }
   };
+  
+  
 
-  // REGISTRO
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // Chama a função que registra o usuário consumidor
       const docId = await registerConsumerUser(
         email,
         senha,
@@ -51,9 +46,6 @@ export default function LoginPage() {
       );
 
       alert(`Usuário registrado com sucesso! ID: ${docId}`);
-      // (Opcional) Já faz login automático:
-      localStorage.setItem("userRole", "cliente");
-      localStorage.setItem("userEmail", email);
       router.push("/");
     } catch (error: any) {
       console.error("Erro ao registrar usuário:", error);
@@ -61,7 +53,6 @@ export default function LoginPage() {
     }
   };
 
-  // ESTILOS
   const containerStyle: React.CSSProperties = {
     display: "flex",
     justifyContent: "center",
@@ -107,12 +98,10 @@ export default function LoginPage() {
           {isRegister ? "Registro" : "Login"}
         </h1>
 
-        {/* FORMULÁRIO */}
         <form
           onSubmit={isRegister ? handleRegister : handleLogin}
           style={{ display: "flex", flexDirection: "column" }}
         >
-          {/* CAMPOS COMUNS (EMAIL E SENHA) */}
           <label style={{ textAlign: "left" }}>E-mail</label>
           <input
             type="email"
@@ -131,7 +120,6 @@ export default function LoginPage() {
             required
           />
 
-          {/* SE ESTIVER REGISTRANDO, MOSTRA CAMPOS EXTRAS */}
           {isRegister && (
             <>
               <label style={{ textAlign: "left" }}>Nome</label>
@@ -183,7 +171,6 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* LINK PARA TROCAR MODO */}
         <div style={{ marginTop: "16px" }}>
           {isRegister ? (
             <span>

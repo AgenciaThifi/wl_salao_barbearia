@@ -1,9 +1,11 @@
 import { db } from "../config/firebase";
-import { 
-  collection, addDoc, getDocs, query, Timestamp, deleteDoc, doc 
+import {
+  collection, addDoc, getDocs, getDoc, setDoc, query, Timestamp, deleteDoc, doc
 } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { where } from "firebase/firestore";
+import { auth } from "../config/firebase";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword  } from "firebase/auth";
 
 /* ÁREA DE AGENDAMENTO DE HORÁRIOS */
 
@@ -91,6 +93,15 @@ export const obterServicos = async (): Promise<Servico[]> => {
     return [];
   }
 };
+export const atualizarServico = async (id: string, servicoAtualizado: Partial<Servico>) => {
+  try {
+    const servicoRef = doc(db, "servicos", id);
+    await setDoc(servicoRef, servicoAtualizado, { merge: true });
+    console.log("Serviço atualizado com sucesso!");
+  } catch (error) {
+    console.error("Erro ao atualizar serviço:", error);
+  }
+};
 
 /* ÁREA DE GALERIA DE IMAGENS */
 
@@ -160,30 +171,35 @@ export const adicionarImagemManual = async (titulo: string, descricao: string, i
  * Retorna um objeto { email, role } se encontrar, ou null se não encontrar
  */
 export async function loginUser(email: string, senha: string) {
-  // 1) Tenta encontrar em usuariosAdm
   const adminRef = collection(db, "usuariosAdm");
-  let q = query(adminRef, where("email", "==", email), where("senha", "==", senha));
-  let snapshot = await getDocs(q);
+  const qAdmin = query(adminRef, where("email", "==", email), where("senha", "==", senha));
+  const adminSnapshot = await getDocs(qAdmin);
 
-  if (!snapshot.empty) {
-    // Encontrou um admin
+  if (!adminSnapshot.empty) {
     return { email, role: "admin" };
   }
 
-  // 2) Se não achou no admin, tenta no consumidor
   const consumerRef = collection(db, "usuariosConsumidor");
-  // Observação: pelo print, você tem "email1" em vez de "email"? Ajuste conforme seu Firestore.
-  q = query(consumerRef, where("email1", "==", email), where("senha", "==", senha));
-  snapshot = await getDocs(q);
+  const qConsumer = query(consumerRef, where("email", "==", email), where("senha", "==", senha));
+  const consumerSnapshot = await getDocs(qConsumer);
 
-  if (!snapshot.empty) {
-    // Encontrou um cliente
+  if (!consumerSnapshot.empty) {
     return { email, role: "cliente" };
   }
 
-  // 3) Se não encontrou em nenhum lugar, retorna null
   return null;
 }
+
+export async function loginUserFirebaseAuth(email: string, password: string) {
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    // userCredential.user -> tem o uid
+    return userCredential.user;
+  } catch (error) {
+    throw new Error("Falha no login com Firebase Auth");
+  }
+}
+
 
 // Retorna o telefone do administrador
 export const getAdminPhoneNumber = async (): Promise<string> => {
@@ -198,7 +214,7 @@ export const getAdminPhoneNumber = async (): Promise<string> => {
     }
   } catch (error) {
     console.error("Erro ao buscar telefone do administrador:", error);
-    return "+5561982541672"; // Telefone padrão de fallback
+    return "+5561999999999"; // Telefone padrão de fallback
   }
 };
 
@@ -211,27 +227,22 @@ export async function registerConsumerUser(
   preferenciaEmail: boolean,
   preferenciaWhatsapp: boolean
 ) {
-  // (Opcional) Verifica se já existe algum usuário com este e-mail
-  // Se você quiser evitar duplicados, pode fazer algo como:
-     const consumerRef = collection(db, "usuariosConsumidor");
-     const q = query(consumerRef, where("email1", "==", email));
-     const snapshot = await getDocs(q);
-    if (!snapshot.empty) {
-       throw new Error("Este e-mail já está em uso.");
-       }
-
-  const docRef = await addDoc(collection(db, "usuariosConsumidor"), {
-    email1: email,
-    senha,
-    nome,
-    telefone,
-    preferencias_notificacao: {
-      email: preferenciaEmail,
-      whatsapp: preferenciaWhatsapp,
-    },
-    // Se quiser adicionar mais campos ou data de criação:
-    criadoEm: Timestamp.now(),
-  });
-
-  return docRef.id;
+   // Cria o usuário no Firebase Auth
+   const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
+   const uid = userCredential.user.uid;
+ 
+   // Cria o documento com ID = uid na coleção 'usuariosConsumidor'
+   await setDoc(doc(db, "usuariosConsumidor", uid), {
+     email,
+     senha,  // cuidado: recomenda-se nunca salvar a senha em texto puro
+     nome,
+     telefone,
+     preferencias_notificacao: {
+       email: preferenciaEmail,
+       whatsapp: preferenciaWhatsapp,
+     },
+     criadoEm: Timestamp.now(),
+   });
+ 
+   return uid;
 }

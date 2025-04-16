@@ -5,11 +5,8 @@ import React, { useState, useEffect } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/app/config/firebase";
 import Contact from "../components/Contact";
-import { useRouter } from "next/navigation";
 
 export default function Contato() {
-  const router = useRouter();
-
   // Armazena a lista de lojas vindas do Firestore
   const [stores, setStores] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -97,27 +94,6 @@ export default function Contato() {
                 socialLinks={socialLinks}
                 hours={hours}
               />
-
-              {/* Apenas um botão "Agendar" por card */}
-              <div style={{ textAlign: "center", marginTop: "0.5rem" }}>
-                <button
-                  onClick={() =>
-                    router.push(`/agendamento?storeId=${store.id}`)
-                  }
-                  style={{
-                    backgroundColor: "#0070f3",
-                    color: "#fff",
-                    padding: "0.75rem 1rem",
-                    border: "none",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                    fontSize: "0.9rem",
-                  }}
-                >
-                  Agendar
-                </button>
-
-              </div>
             </div>
           );
         })}

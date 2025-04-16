@@ -1,3 +1,7 @@
+/*
+NÃO ESTÁ MAIS SENDO UTILIZADO, MAS MANTIDO AQUI PARA FUTURAS REFERÊNCIAS
+E POSSÍVEIS MELHORIAS
+*/
 "use client";
 
 import React, { useState, useEffect } from "react";

@@ -5,9 +5,11 @@ import Link from "next/link";
 import Image from "next/image";
 import styles from "./styles/Navbar.module.css";
 import logo from "./logo.png";
+import { useUser } from "../context/UserContext"; // Importa o contexto
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { role, loading } = useUser(); // Usa o role
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -31,7 +33,7 @@ const Navbar: React.FC = () => {
             </Link>
           </li>
           <li className={styles.navItem}>
-            <Link href="#GaleriaInstagram" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>
+            <Link href="#galeria" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>
               Galeria de Imagens
             </Link>
           </li>
@@ -50,11 +52,18 @@ const Navbar: React.FC = () => {
               Loja
             </Link>
           </li>
-          <li className={styles.navItem}>
-            <Link href="/admin/add-product" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>
-              Adicionar Produto
-            </Link>
-          </li>
+
+          {/* Exibe funcionalidades de admin quando role for admin */}
+          {!loading && role === "admin" && (
+            <>
+              <li className={styles.navItem}>
+                <Link href="/admin" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>
+                  Painel Administrativo
+                </Link>
+              </li>
+            </>
+          )}
+
           <li className={styles.navItem}>
             <Link href="/login" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>
               Login

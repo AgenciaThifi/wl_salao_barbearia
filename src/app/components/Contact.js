@@ -2,7 +2,11 @@
 import React from "react";
 
 const Contact = ({ address, phone, socialLinks, hours }) => {
-  const apiKey = "AIzaSyCId3SHkxs7Qy485D8H9IxIRbwRyOz0XXI";
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+  if (!apiKey) {
+    console.error("API key não encontrada!");
+    return null;
+  }
 
   return (
     <div

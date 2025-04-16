@@ -1,6 +1,7 @@
 // src/app/api/pagamento/route.ts
 import { NextResponse } from "next/server";
 import mercadopago from "@/app/services/mercadoPagoService";
+import { PAYMENT_REDIRECT_URLS } from "./paymentUrls";
 
 export async function POST(req: Request) {
   try {
@@ -8,11 +9,7 @@ export async function POST(req: Request) {
 
     const preference = {
       items,
-      back_urls: {
-        success: "http://localhost:3004/sucesso",
-        failure: "http://localhost:3004/falha",
-        pending: "http://localhost:3004/pendente",
-      },
+      back_urls: PAYMENT_REDIRECT_URLS,
       auto_return: "approved",
     };
 

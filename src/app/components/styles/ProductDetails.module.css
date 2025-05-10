@@ -1,0 +1,46 @@
+.container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 1rem;
+  font-family: Arial, sans-serif;
+  background-color: #fff;
+  border-radius: 1rem;
+  border: 1px solid #ddd;
+}
+
+.title {
+  font-size: 2rem;
+  color: #232f3e;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.imageContainer {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.brandImage {
+  display: flex;
+  justify-content: center;
+  margin: 1rem 0;
+}
+
+p {
+  font-size: 1rem;
+  margin: 0.5rem 0;
+  color: #333;
+}
+
+strong {
+  color: #111;
+}
+
+ul {
+  padding-left: 1.5rem;
+}
+
+li {
+  margin-bottom: 0.3rem;
+}

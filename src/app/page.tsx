@@ -19,7 +19,7 @@ export default function Home() {
         const data = await obterServicos();
         setServicos(data);
       } catch (error) {
-        console.error("Erro ao carregar serviços:", error);
+        console.error("Erro ao carregar serviÃ§os:", error);
       }
     };
     fetchServicos();

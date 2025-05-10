@@ -1,0 +1,93 @@
+/* productID.module.css */
+
+.container {
+  color: black; /* Aplica texto preto a tudo dentro do container */
+  background-color: white; /* Garante bom contraste */
+  padding: 2rem;
+  font-family: Arial, sans-serif;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: black;
+}
+
+.imageContainer {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.image {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.navButton {
+  padding: 0.5rem 1rem;
+  background-color: #f0f0f0;
+  color: black;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.navButton:hover {
+  background-color: #ddd;
+}
+
+.cartButton {
+  margin-top: 1rem;
+  background-color: #0070f3;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.promotionsSection {
+  margin-top: 2rem;
+  color: black;
+}
+
+.sliderCard {
+  background-color: #fafafa;
+  border-radius: 8px;
+  padding: 1rem;
+  color: black;
+  text-align: center;
+  text-decoration: none;
+}
+
+.commentsSection {
+  margin-top: 2rem;
+  color: black;
+}
+
+.commentForm {
+  margin-bottom: 1rem;
+}
+
+.commentList {
+  list-style: none;
+  padding-left: 0;
+}
+
+.floatingCartButton {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #0070f3;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  padding: 1rem;
+  font-size: 1.5rem;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}

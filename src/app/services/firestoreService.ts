@@ -1,19 +1,36 @@
-import { db } from "../config/firebase";
+import { db, auth } from "../config/firebase";
 import {
-  collection, addDoc, getDocs, getDoc, setDoc, query, Timestamp, deleteDoc, doc
+  collection,
+  addDoc,
+  getDocs,
+  getDoc,
+  setDoc,
+  query,
+  Timestamp,
+  deleteDoc,
+  doc,
+  where,
+  orderBy,
 } from "firebase/firestore";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { where } from "firebase/firestore";
-import { auth } from "../config/firebase";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword  } from "firebase/auth";
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL
+} from "firebase/storage";
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut
+} from "firebase/auth";
 
-/* ÁREA DE AGENDAMENTO DE HORÁRIOS */
-
+/* ============================ AGENDAMENTOS ============================ */
 export interface Agendamento {
   id: string;
   nome: string;
   telefone: string;
   horario: string;
+  userId?: string;
 }
 
 export const criarAgendamento = async (agendamento: Omit<Agendamento, "id">) => {
@@ -27,11 +44,9 @@ export const criarAgendamento = async (agendamento: Omit<Agendamento, "id">) => 
 
 export const obterHorariosDisponiveis = async (horariosPadrao: string[]): Promise<string[]> => {
   try {
-    const q = query(collection(db, "agendamentos"));
-    const querySnapshot = await getDocs(q);
-
+    const querySnapshot = await getDocs(collection(db, "agendamentos"));
     const horariosOcupados: string[] = querySnapshot.docs.map(doc => doc.data().horario as string);
-    return horariosPadrao.filter((hora: string) => !horariosOcupados.includes(hora));
+    return horariosPadrao.filter(h => !horariosOcupados.includes(h));
   } catch (error) {
     console.error("Erro ao obter horários disponíveis:", error);
     return horariosPadrao;
@@ -41,7 +56,7 @@ export const obterHorariosDisponiveis = async (horariosPadrao: string[]): Promis
 export async function obterAgendamentos(): Promise<Agendamento[]> {
   try {
     const querySnapshot = await getDocs(collection(db, "agendamentos"));
-    return querySnapshot.docs.map((doc) => ({
+    return querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...(doc.data() as Omit<Agendamento, "id">),
     }));
@@ -51,8 +66,21 @@ export async function obterAgendamentos(): Promise<Agendamento[]> {
   }
 }
 
-/* ÁREA DO CATÁLOGO DE SERVIÇOS */
+export const getClienteAgendamentos = async (userId: string): Promise<Agendamento[]> => {
+  try {
+    const q = query(collection(db, "agendamentos"), where("userId", "==", userId));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...(doc.data() as Omit<Agendamento, "id">)
+    }));
+  } catch (error) {
+    console.error("Erro ao buscar agendamentos do cliente:", error);
+    return [];
+  }
+};
 
+/* ============================ CATÁLOGO DE SERVIÇOS ============================ */
 export interface Servico {
   id: string;
   nome: string;
@@ -71,7 +99,6 @@ export const adicionarServico = async (servico: Omit<Servico, "id">) => {
   }
 };
 
-
 export const excluirServico = async (id: string) => {
   try {
     await deleteDoc(doc(db, "servicos", id));
@@ -83,28 +110,27 @@ export const excluirServico = async (id: string) => {
 
 export const obterServicos = async (): Promise<Servico[]> => {
   try {
-    const querySnapshot = await getDocs(collection(db, "servicos"));
-    return querySnapshot.docs.map((doc) => ({
+    const snapshot = await getDocs(collection(db, "servicos"));
+    return snapshot.docs.map(doc => ({
       id: doc.id,
-      ...(doc.data() as Omit<Servico, "id">),
+      ...(doc.data() as Omit<Servico, "id">)
     }));
   } catch (error) {
     console.error("Erro ao obter serviços:", error);
     return [];
   }
 };
+
 export const atualizarServico = async (id: string, servicoAtualizado: Partial<Servico>) => {
   try {
-    const servicoRef = doc(db, "servicos", id);
-    await setDoc(servicoRef, servicoAtualizado, { merge: true });
+    await setDoc(doc(db, "servicos", id), servicoAtualizado, { merge: true });
     console.log("Serviço atualizado com sucesso!");
   } catch (error) {
     console.error("Erro ao atualizar serviço:", error);
   }
 };
 
-/* ÁREA DE GALERIA DE IMAGENS */
-
+/* ============================ GALERIA DE IMAGENS ============================ */
 export interface Imagem {
   id: string;
   titulo?: string;
@@ -114,7 +140,13 @@ export interface Imagem {
   criadoEm: Timestamp;
 }
 
-export const uploadImagem = async (file: File, titulo: string, descricao: string, instagramUrl: string, isActive: boolean) => {
+export const uploadImagem = async (
+  file: File,
+  titulo: string,
+  descricao: string,
+  instagramUrl: string,
+  isActive: boolean
+) => {
   const storage = getStorage();
   const storageRef = ref(storage, `galeria/${file.name}`);
 
@@ -127,7 +159,7 @@ export const uploadImagem = async (file: File, titulo: string, descricao: string
       descricao,
       instagramUrl,
       isActive,
-      criadoEm: Timestamp.now(),  // Certificando-se de usar o Timestamp correto
+      criadoEm: Timestamp.now(),
     });
     console.log("Imagem carregada e salva com sucesso!");
   } catch (error) {
@@ -137,11 +169,13 @@ export const uploadImagem = async (file: File, titulo: string, descricao: string
 
 export const obterGaleria = async (): Promise<Imagem[]> => {
   try {
-    const querySnapshot = await getDocs(collection(db, "galeria"));
-    return querySnapshot.docs.map((doc) => ({
+    const snapshot = await getDocs(collection(db, "galeria"));
+    return snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data(),
-      criadoEm: doc.data().criadoEm instanceof Timestamp ? doc.data().criadoEm : Timestamp.now(), // Validando o tipo de criadoEm
+      criadoEm: doc.data().criadoEm instanceof Timestamp
+        ? doc.data().criadoEm
+        : Timestamp.now(),
     })) as Imagem[];
   } catch (error) {
     console.error("Erro ao obter galeria:", error);
@@ -149,14 +183,20 @@ export const obterGaleria = async (): Promise<Imagem[]> => {
   }
 };
 
-export const adicionarImagemManual = async (titulo: string, descricao: string, instagramUrl: string, isActive: boolean, criadoEm: Timestamp) => {
+export const adicionarImagemManual = async (
+  titulo: string,
+  descricao: string,
+  instagramUrl: string,
+  isActive: boolean,
+  criadoEm: Timestamp
+) => {
   try {
     await addDoc(collection(db, "galeria"), {
       titulo,
       descricao,
       instagramUrl,
       isActive,
-      criadoEm: Timestamp.now(),
+      criadoEm,
     });
     console.log("Imagem adicionada manualmente com sucesso!");
   } catch (error) {
@@ -164,60 +204,78 @@ export const adicionarImagemManual = async (titulo: string, descricao: string, i
   }
 };
 
-/* ÁREA DE LOGIN */
-
-/**
- * Verifica se o usuário existe em usuariosAdm ou usuariosConsumidor
- * Retorna um objeto { email, role } se encontrar, ou null se não encontrar
- */
+/* ============================ LOGIN E PERFIL CLIENTE ============================ */
 export async function loginUser(email: string, senha: string) {
   const adminRef = collection(db, "usuariosAdm");
   const qAdmin = query(adminRef, where("email", "==", email), where("senha", "==", senha));
   const adminSnapshot = await getDocs(qAdmin);
 
-  if (!adminSnapshot.empty) {
-    return { email, role: "admin" };
-  }
+  if (!adminSnapshot.empty) return { email, role: "admin" };
 
   const consumerRef = collection(db, "usuariosConsumidor");
   const qConsumer = query(consumerRef, where("email", "==", email), where("senha", "==", senha));
   const consumerSnapshot = await getDocs(qConsumer);
 
-  if (!consumerSnapshot.empty) {
-    return { email, role: "cliente" };
-  }
+  if (!consumerSnapshot.empty) return { email, role: "cliente" };
 
   return null;
 }
 
 export async function loginUserFirebaseAuth(email: string, password: string) {
-  try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    // userCredential.user -> tem o uid
-    return userCredential.user;
-  } catch (error) {
-    throw new Error("Falha no login com Firebase Auth");
-  }
+  const userCredential = await signInWithEmailAndPassword(auth, email, password);
+  return userCredential.user;
 }
 
+export const logoutUserFirebaseAuth = async () => {
+  await signOut(auth);
+  console.log("Usuário deslogado com sucesso.");
+};
 
-// Retorna o telefone do administrador
 export const getAdminPhoneNumber = async (): Promise<string> => {
   try {
     const snapshot = await getDocs(collection(db, "usuariosAdm"));
     const adminDoc = snapshot.docs.find(doc => !!doc.data().telefone);
-
-    if (adminDoc) {
-      return adminDoc.data().telefone;
-    } else {
-      throw new Error("Telefone do administrador não encontrado.");
-    }
+    return adminDoc?.data().telefone || "+5561999999999";
   } catch (error) {
     console.error("Erro ao buscar telefone do administrador:", error);
-    return "+5561999999999"; // Telefone padrão de fallback
+    return "+5561999999999";
   }
 };
 
+export const getCurrentUserData = async () => {
+  const user = auth.currentUser;
+  if (!user) throw new Error("Usuário não está autenticado.");
+
+  const userDocSnap = await getDoc(doc(db, "usuariosConsumidor", user.uid));
+  if (!userDocSnap.exists()) throw new Error("Dados do usuário não encontrados.");
+
+  return {
+    id: user.uid,
+    ...(userDocSnap.data() as {
+      nome: string;
+      telefone: string;
+      preferencias_notificacao?: {
+        email: boolean;
+        whatsapp: boolean;
+      };
+    }),
+  };
+};
+
+export const updateConsumerUserData = async (
+  userId: string,
+  novosDados: Partial<{
+    nome: string;
+    telefone: string;
+    preferencias_notificacao: {
+      email: boolean;
+      whatsapp: boolean;
+    };
+  }>
+) => {
+  const userRef = doc(db, "usuariosConsumidor", userId);
+  await setDoc(userRef, novosDados, { merge: true });
+};
 
 export async function registerConsumerUser(
   email: string,
@@ -227,22 +285,49 @@ export async function registerConsumerUser(
   preferenciaEmail: boolean,
   preferenciaWhatsapp: boolean
 ) {
-   // Cria o usuário no Firebase Auth
-   const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
-   const uid = userCredential.user.uid;
- 
-   // Cria o documento com ID = uid na coleção 'usuariosConsumidor'
-   await setDoc(doc(db, "usuariosConsumidor", uid), {
-     email,
-     senha,  // cuidado: recomenda-se nunca salvar a senha em texto puro
-     nome,
-     telefone,
-     preferencias_notificacao: {
-       email: preferenciaEmail,
-       whatsapp: preferenciaWhatsapp,
-     },
-     criadoEm: Timestamp.now(),
-   });
- 
-   return uid;
+  const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
+  const uid = userCredential.user.uid;
+
+  await setDoc(doc(db, "usuariosConsumidor", uid), {
+    email,
+    senha, // ⚠️ Não recomendado armazenar senha em texto puro
+    nome,
+    telefone,
+    preferencias_notificacao: {
+      email: preferenciaEmail,
+      whatsapp: preferenciaWhatsapp,
+    },
+    criadoEm: Timestamp.now(),
+  });
+
+  return uid;
 }
+
+/* ============================ COMPRAS DO CLIENTE ============================ */
+export interface Compra {
+  id: string;
+  userId: string;
+  produtoId: string;
+  nomeProduto: string;
+  quantidade: number;
+  valorTotal: number;
+  data: Timestamp;
+}
+
+export const getClienteCompras = async (userId: string): Promise<Compra[]> => {
+  try {
+    const q = query(
+      collection(db, "compras"),
+      where("userId", "==", userId),
+      orderBy("data", "desc")
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...(doc.data() as Omit<Compra, "id">),
+    }));
+  } catch (error) {
+    console.error("Erro ao buscar compras do cliente:", error);
+    return [];
+  }
+};

@@ -5,14 +5,28 @@ import Link from "next/link";
 import Image from "next/image";
 import styles from "./styles/Navbar.module.css";
 import logo from "./logo.png";
-import { useUser } from "../context/UserContext"; // Importa o contexto
-
+import { useUser } from "../context/UserContext";
+import { useRouter } from "next/navigation";
+import { logoutUserFirebaseAuth } from "../services/firestoreService"; // <-- Importa função de logout
+import CadastroCliente from "../cadastroCliente/page"
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { role, loading } = useUser(); // Usa o role
+  const { role, loading } = useUser();
+  const router = useRouter();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logoutUserFirebaseAuth(); // Chama função de logout
+      alert("Logout realizado com sucesso!");
+      router.push("/login"); // Redireciona para login
+    } catch (error) {
+      console.error("Erro ao fazer logout:", error);
+      alert("Erro ao sair da conta.");
+    }
   };
 
   return (
@@ -53,22 +67,52 @@ const Navbar: React.FC = () => {
             </Link>
           </li>
 
-          {/* Exibe funcionalidades de admin quando role for admin */}
           {!loading && role === "admin" && (
-            <>
-              <li className={styles.navItem}>
-                <Link href="/admin" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>
-                  Painel Administrativo
-                </Link>
-              </li>
-            </>
+            <li className={styles.navItem}>
+              <Link href="/admin" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>
+                Painel Administrativo
+              </Link>
+            </li>
           )}
 
-          <li className={styles.navItem}>
-            <Link href="/login" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>
-              Login
-            </Link>
-          </li>
+          {!loading && !role && (
+            <li className={styles.navItem}>
+                 <Link
+                  href="/cadastroCliente"
+                  className={styles.navLink}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                Cadastro do Cliente
+              </Link>
+            </li>
+          )}
+
+          {!loading && role && (
+            <li className={styles.navItem}>
+                 <Link
+                  href="/clientePerfil"
+                  className={styles.navLink}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                Perfil
+              </Link>
+            </li>
+          )}
+
+          {!loading && role ? (
+            <li className={styles.navItem}>
+              <button className={styles.navLink} onClick={handleLogout} style={{ background: "none", border: "none", cursor: "pointer" }}>
+                Logout
+              </button>
+            </li>
+          ) : (
+            <li className={styles.navItem}>
+              <Link href="/login" className={styles.navLink} onClick={() => setIsMenuOpen(false)}>
+                Login
+              </Link>
+            </li>
+
+          )}
         </ul>
       </div>
     </nav>

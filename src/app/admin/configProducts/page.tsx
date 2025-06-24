@@ -1,10 +1,9 @@
-// src/app/admin/configProducts/page.tsx
 "use client";
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/app/context/UserContext";
-import { app, db, storage } from "@/app/config/firebase";
+import { db, storage } from "@/app/config/firebase";
 import {
   collection,
   getDocs,
@@ -12,8 +11,6 @@ import {
   deleteDoc,
   doc,
   updateDoc,
-  getFirestore,
-  query,
 } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import styles from "./configProducts.module.css";
@@ -28,7 +25,7 @@ interface Product {
   id: string;
   name: string;
   price?: number;
-  discount?: number; // ← novo campo
+  discount?: number;
   stock?: number;
   description: string;
   categoryId?: string;
@@ -38,13 +35,16 @@ interface Product {
   brand: string;
   brandImageUrl?: string;
   url?: string;
+  width?: number;
+  height?: number;
+  length?: number;
+  weight?: number;
 }
 
 interface Category {
   id: string;
   name: string;
 }
-
 
 function toTitleCase(str: string): string {
   return str
@@ -57,17 +57,25 @@ function toTitleCase(str: string): string {
 export default function ConfigProductsPage() {
   const router = useRouter();
   const { role, loading } = useUser();
-  const [discount, setDiscount] = useState<number>(0);
+
+  // campos
   const [name, setName] = useState("");
   const [price, setPrice] = useState<number>(0);
+  const [discount, setDiscount] = useState<number>(0);
   const [stock, setStock] = useState<number>(0);
   const [description, setDescription] = useState("");
-  const [categoryId, setCategoryId] = useState("");
-  const [storeIds, setStoreIds] = useState<string[]>([]);
   const [ingredients, setIngredients] = useState("");
   const [brand, setBrand] = useState("");
   const [brandImageFile, setBrandImageFile] = useState<File | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [categoryId, setCategoryId] = useState("");
+  const [storeIds, setStoreIds] = useState<string[]>([]);
+  const [width, setWidth] = useState<number>(0);
+  const [height, setHeight] = useState<number>(0);
+  const [length, setLength] = useState<number>(0);
+  const [weight, setWeight] = useState<number>(0);
+
+  // dados auxiliares
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [stores, setStores] = useState<Store[]>([]);
@@ -87,37 +95,24 @@ export default function ConfigProductsPage() {
   }, []);
 
   const fetchCategories = async () => {
-    try {
-      const snap = await getDocs(collection(db, "categories"));
-      setCategories(
-        snap.docs.map((d) => ({
-          id: d.id,
-          ...(d.data() as Omit<Category, "id">),
-        }))
-      );
-    } catch (err) {
-      console.error("Erro ao carregar categorias:", err);
-    }
+    const snap = await getDocs(collection(db, "categories"));
+    setCategories(
+      snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Category, "id">) }))
+    );
   };
 
   const fetchStores = async () => {
-    try {
-      const snap = await getDocs(collection(db, "stores")); // <-- Corrigido aqui
-      const lojas = snap.docs.map((d) => ({
-        id: d.id,
-        ...(d.data() as Omit<Store, "id">),
-      }));
-      setStores(lojas);
-    } catch (err) {
-      console.error("Erro ao carregar lojas:", err);
-    }
+    const snap = await getDocs(collection(db, "stores"));
+    setStores(
+      snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Store, "id">) }))
+    );
   };
 
   const fetchProducts = async () => {
     setLoadingProducts(true);
-    try {
-      const snap = await getDocs(collection(db, "produtos"));
-      const list: Product[] = snap.docs.map((docSnap) => {
+    const snap = await getDocs(collection(db, "produtos"));
+    setProducts(
+      snap.docs.map((docSnap) => {
         const data = docSnap.data() as any;
         return {
           id: docSnap.id,
@@ -126,21 +121,21 @@ export default function ConfigProductsPage() {
           discount: data.discount ?? 0,
           stock: data.stock ?? 0,
           description: data.description,
-          url: data.url || data.imageUrl || "",
+          url: data.url || "",
           categoryId: data.categoryId,
           categoryName: data.categoryName,
           storeIds: data.storeIds || [],
           ingredients: data.ingredients,
           brand: data.brand,
           brandImageUrl: data.brandImageUrl || "",
+          width: data.width ?? 0,
+          height: data.height ?? 0,
+          length: data.length ?? 0,
+          weight: data.weight ?? 0,
         };
-      });
-      setProducts(list);
-    } catch (error) {
-      console.error("Erro ao carregar produtos:", error);
-    } finally {
-      setLoadingProducts(false);
-    }
+      })
+    );
+    setLoadingProducts(false);
   };
 
   const resetForm = () => {
@@ -155,41 +150,41 @@ export default function ConfigProductsPage() {
     setBrand("");
     setBrandImageFile(null);
     setImageFile(null);
+    setWidth(0);
+    setHeight(0);
+    setLength(0);
+    setWeight(0);
     setEditingProductId(null);
   };
 
   const handleSaveProduct = async () => {
-    if (!name.trim() || !description.trim() || !categoryId || storeIds.length === 0) {
+    if (!name || !description || !categoryId || storeIds.length === 0) {
       alert("Preencha todos os campos obrigatórios.");
       return;
     }
 
     const formattedName = toTitleCase(name.trim());
+    const category = categories.find((c) => c.id === categoryId);
+    const categoryName = category?.name || "";
 
     try {
-          let uploadedURL = "";
-    if (imageFile) {
-      const storageRef = ref(storage, `products/${Date.now()}-${imageFile.name}`);
-      await uploadBytes(storageRef, imageFile);
-      uploadedURL = await getDownloadURL(storageRef);
-    } else if (editingProductId) {
-      const existingProduct = products.find(p => p.id === editingProductId);
-      uploadedURL = existingProduct?.url || "";
-    }
+      let uploadedURL = "";
+      if (imageFile) {
+        const storageRef = ref(storage, `products/${Date.now()}-${imageFile.name}`);
+        await uploadBytes(storageRef, imageFile);
+        uploadedURL = await getDownloadURL(storageRef);
+      } else if (editingProductId) {
+        uploadedURL = products.find((p) => p.id === editingProductId)?.url || "";
+      }
 
-    let brandImageUrl = "";
-    if (brandImageFile) {
-      const brandRef = ref(storage, `brands/${Date.now()}-${brandImageFile.name}`);
-      await uploadBytes(brandRef, brandImageFile);
-      brandImageUrl = await getDownloadURL(brandRef);
-    } else if (editingProductId) {
-      const existingProduct = products.find(p => p.id === editingProductId);
-      brandImageUrl = existingProduct?.brandImageUrl || "";
-    }
-
-
-      const category = categories.find((c) => c.id === categoryId);
-      const categoryName = category?.name || "";
+      let brandImageUrl = "";
+      if (brandImageFile) {
+        const brandRef = ref(storage, `brands/${Date.now()}-${brandImageFile.name}`);
+        await uploadBytes(brandRef, brandImageFile);
+        brandImageUrl = await getDownloadURL(brandRef);
+      } else if (editingProductId) {
+        brandImageUrl = products.find((p) => p.id === editingProductId)?.brandImageUrl || "";
+      }
 
       const data = {
         name: formattedName,
@@ -197,41 +192,32 @@ export default function ConfigProductsPage() {
         discount,
         stock,
         description,
+        ingredients,
+        brand,
         categoryId,
         categoryName,
         storeIds,
-        ingredients,
-        brand,
         brandImageUrl,
         url: uploadedURL,
+        width,
+        height,
+        length,
+        weight,
       };
 
-      if (!editingProductId) {
+      if (editingProductId) {
+        await updateDoc(doc(db, "produtos", editingProductId), data);
+        alert("Produto atualizado com sucesso!");
+      } else {
         await addDoc(collection(db, "produtos"), data);
         alert("Produto adicionado com sucesso!");
-      } else {
-        const docRef = doc(db, "produtos", editingProductId);
-        await updateDoc(docRef, data);
-        alert("Produto atualizado com sucesso!");
       }
 
       resetForm();
       fetchProducts();
     } catch (error) {
-      console.error("Erro ao salvar produto:", error);
+      console.error(error);
       alert("Erro ao salvar produto.");
-    }
-  };
-
-  const handleDeleteProduct = async (productId: string) => {
-    if (!confirm("Tem certeza que deseja excluir este produto?")) return;
-    try {
-      await deleteDoc(doc(db, "produtos", productId));
-      alert("Produto excluído com sucesso!");
-      fetchProducts();
-    } catch (error) {
-      console.error("Erro ao excluir produto:", error);
-      alert("Erro ao excluir produto.");
     }
   };
 
@@ -242,10 +228,21 @@ export default function ConfigProductsPage() {
     setDiscount(product.discount ?? 0);
     setStock(product.stock ?? 0);
     setDescription(product.description);
-    setCategoryId(product.categoryId || "");
-    setStoreIds(product.storeIds);
     setIngredients(product.ingredients);
     setBrand(product.brand);
+    setCategoryId(product.categoryId || "");
+    setStoreIds(product.storeIds);
+    setWidth(product.width ?? 0);
+    setHeight(product.height ?? 0);
+    setLength(product.length ?? 0);
+    setWeight(product.weight ?? 0);
+  };
+
+  const handleDeleteProduct = async (id: string) => {
+    if (!confirm("Deseja realmente excluir?")) return;
+    await deleteDoc(doc(db, "produtos", id));
+    alert("Produto excluído.");
+    fetchProducts();
   };
 
   if (loading) return <p className={styles.loading}>Carregando...</p>;
@@ -253,66 +250,61 @@ export default function ConfigProductsPage() {
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Gerenciar Produtos</h1>
-      <button onClick={() => router.back()} className={styles.backButton}>
-        ← Voltar ao Painel Administrativo
-      </button>
 
-      <div className={styles.formContainer}>
-  <h2 className={styles.subTitle}>
-    {editingProductId ? "Editar Produto" : "Adicionar Novo Produto"}
-  </h2>
+      {/* Formulário */}
+     <div className={styles.formContainer}>
+  <label>Nome do produto</label>
+  <input placeholder="Nome do produto" value={name} onChange={(e) => setName(e.target.value)} className={styles.input} />
 
-  <label><strong>Nome do Produto:</strong></label>
-  <input type="text" placeholder="Nome do produto" value={name} onChange={(e) => setName(e.target.value)} className={styles.input} />
+  <label>Preço (R$)</label>
+  <input type="number" placeholder="Preço" value={price} onChange={(e) => setPrice(Number(e.target.value))} className={styles.input} />
 
-  <label><strong>Valor (R$):</strong></label>
-  <input type="number" placeholder="Valor (R$)" value={price} onChange={(e) => setPrice(Number(e.target.value))} className={styles.input} />
-  <label><strong>Desconto (R$):</strong></label>
-  <input
-    type="number"
-    placeholder="Valor de desconto"
-    value={discount}
-    onChange={(e) => setDiscount(Number(e.target.value))}
-    className={styles.input}
-  />
+  <label>Desconto (R$)</label>
+  <input type="number" placeholder="Desconto" value={discount} onChange={(e) => setDiscount(Number(e.target.value))} className={styles.input} />
 
-  <label><strong>Quantidade em Estoque:</strong></label>
-  <input type="number" placeholder="Quantidade em estoque" value={stock} onChange={(e) => setStock(Number(e.target.value))} className={styles.input} />
+  <label>Estoque</label>
+  <input type="number" placeholder="Estoque" value={stock} onChange={(e) => setStock(Number(e.target.value))} className={styles.input} />
 
-  <label><strong>Descrição:</strong></label>
+  <label>Descrição</label>
   <textarea placeholder="Descrição" value={description} onChange={(e) => setDescription(e.target.value)} className={styles.input} />
 
-  <label><strong>Ingredientes:</strong></label>
+  <label>Ingredientes</label>
   <textarea placeholder="Ingredientes" value={ingredients} onChange={(e) => setIngredients(e.target.value)} className={styles.input} />
 
-  <label><strong>Marca / Nome do Fabricante:</strong></label>
-  <input type="text" placeholder="Marca / Nome do Fabricante" value={brand} onChange={(e) => setBrand(e.target.value)} className={styles.input} />
+  <label>Marca</label>
+  <input placeholder="Marca" value={brand} onChange={(e) => setBrand(e.target.value)} className={styles.input} />
 
-  <label><strong>Imagem da marca (opcional):</strong></label>
+  <label>Imagem da Marca</label>
   <input type="file" accept="image/*" onChange={(e) => setBrandImageFile(e.target.files?.[0] || null)} />
 
-  <label><strong>Categoria:</strong></label>
-  <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className={styles.input}>
-    <option value="">Selecione a categoria</option>
-    {categories.map((cat) => (
-      <option key={cat.id} value={cat.id}>{cat.name}</option>
-    ))}
-  </select>
-
-  <label><strong>Selecione as Lojas:</strong></label>
-  <select multiple value={storeIds} onChange={(e) => setStoreIds(Array.from(e.target.selectedOptions, (opt) => opt.value))} className={styles.input}>
-    {stores.map((store) => (
-      <option key={store.id} value={store.id}>
-        {store.name} - {store.address}
-      </option>
-    ))}
-  </select>
-
-  <label><strong>Imagem do Produto (opcional):</strong></label>
+  <label>Imagem do Produto</label>
   <input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files?.[0] || null)} />
 
+  <label>Categoria</label>
+  <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className={styles.input}>
+    <option value="">Selecione a categoria</option>
+    {categories.map((cat) => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
+  </select>
+
+  <label>Lojas</label>
+  <select multiple value={storeIds} onChange={(e) => setStoreIds(Array.from(e.target.selectedOptions, opt => opt.value))} className={styles.input}>
+    {stores.map((s) => <option key={s.id} value={s.id}>{s.name} - {s.address}</option>)}
+  </select>
+
+  <label>Largura (cm)</label>
+  <input type="number" placeholder="Largura" value={width} onChange={(e) => setWidth(Number(e.target.value))} className={styles.input} />
+
+  <label>Altura (cm)</label>
+  <input type="number" placeholder="Altura" value={height} onChange={(e) => setHeight(Number(e.target.value))} className={styles.input} />
+
+  <label>Comprimento (cm)</label>
+  <input type="number" placeholder="Comprimento" value={length} onChange={(e) => setLength(Number(e.target.value))} className={styles.input} />
+
+  <label>Peso (g)</label>
+  <input type="number" placeholder="Peso" value={weight} onChange={(e) => setWeight(Number(e.target.value))} className={styles.input} />
+
   <button onClick={handleSaveProduct} className={styles.saveButton}>
-    {editingProductId ? "Salvar Alterações" : "Adicionar"}
+    {editingProductId ? "Salvar Alterações" : "Adicionar Produto"}
   </button>
   {editingProductId && (
     <button onClick={resetForm} className={styles.cancelButton}>
@@ -321,42 +313,24 @@ export default function ConfigProductsPage() {
   )}
 </div>
 
-
-      <h2 className={styles.subTitle}>Produtos Existentes</h2>
-      {loadingProducts ? (
-        <p className={styles.loading}>Carregando produtos...</p>
-      ) : products.length === 0 ? (
-        <p>Nenhum produto cadastrado.</p>
-      ) : (
-        <div className={styles.cardsContainer}>
-          {products.map((product) => (
-            <div key={product.id} className={styles.card}>
-              {product.url ? (
-                <img src={product.url} alt={product.name} className={styles.cardImage} />
-              ) : (
-                <div className={styles.noImage}>Sem imagem</div>
-              )}
-              <h3 className={styles.cardTitle}>{product.name}</h3>
-              <p><strong>ID:</strong> {product.id}</p>
-              <p><strong>Preço:</strong> R$ {(product.price ?? 0).toFixed(2)}</p>
-              <p><strong>Desconto:</strong> R$ {(product.discount ?? 0).toFixed(2)}</p>
-              <p><strong>Estoque:</strong> {product.stock ?? 0}</p>
-              <p className={styles.cardDescription}>{product.description}</p>
-              <p><strong>Categoria:</strong> {product.categoryName}</p>
-              <p><strong>Ingredientes:</strong> {product.ingredients}</p>
-              <p><strong>Marca:</strong> {product.brand}</p>
-              <p><strong>Lojas:</strong> {product.storeIds.map((id) => {
-                const store = stores.find((s) => s.id === id);
-                return store ? store.address : id;
-              }).join(", ")}</p>
-              <div className={styles.cardActions}>
-                <button onClick={() => handleEditProduct(product)} className={styles.editButton}>Editar</button>
-                <button onClick={() => handleDeleteProduct(product.id)} className={styles.deleteButton}>Excluir</button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      {/* Lista de produtos */}
+      <h2 className={styles.subTitle}>Produtos</h2>
+      <div className={styles.cardsContainer}>
+        {products.map((product) => (
+          <div key={product.id} className={styles.card}>
+            <img src={product.url} alt={product.name} className={styles.cardImage} />
+            <h3>{product.name}</h3>
+            <p><strong>Preço:</strong> R$ {product.price?.toFixed(2)}</p>
+            <p><strong>Desconto:</strong> R$ {product.discount?.toFixed(2)}</p>
+            <p><strong>Estoque:</strong> {product.stock}</p>
+            <p><strong>Dimensões:</strong> {product.width}x{product.height}x{product.length} cm</p>
+            <p><strong>Peso:</strong> {product.weight} g</p>
+            <p><strong>Marca:</strong> {product.brand}</p>
+            <button onClick={() => handleEditProduct(product)} className={styles.editButton}>Editar</button>
+            <button onClick={() => handleDeleteProduct(product.id)} className={styles.deleteButton}>Excluir</button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

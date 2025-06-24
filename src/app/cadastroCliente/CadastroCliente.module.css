@@ -1,0 +1,65 @@
+.container {
+  max-width: 600px;
+  margin: auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  color: #000; /* Define cor padrão preta para o container */
+}
+
+.title {
+  text-align: center;
+  color: #c04892;
+  margin-bottom: 20px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.label {
+  font-weight: bold;
+  color: #000; /* Preto */
+}
+
+.input,
+.select,
+.checkbox,
+.password {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  color: #000; /* Texto preto */
+  background-color: #fff; /* Fundo branco */
+}
+
+.checkbox {
+  width: auto;
+}
+
+.promotions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 0.95rem;
+  color: #000; /* Texto preto */
+}
+
+.button {
+  margin-top: 20px;
+  padding: 10px;
+  background: #c04892;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.button:hover {
+  background: #a23a78;
+}

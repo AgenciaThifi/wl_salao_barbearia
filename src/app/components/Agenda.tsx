@@ -11,63 +11,38 @@ import { getAdminPhoneNumber } from "../services/firestoreService";
 import { generateDailySlots, Slot } from "../services/slotGenerator";
 import styles from "./styles/scheduling.module.css";
 import { useUser } from "../context/UserContext";
-import {
-  collection,
-  getDocs,
-  query,
-  where,
-  DocumentData,
-} from "firebase/firestore";
+import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../config/firebase";
 
-// Atualize a interface para incluir storeId (opcional)
 export interface SalonBookingProps {
   servicos: Servico[];
   storeId?: string;
 }
 
-const SalonBooking: React.FC<SalonBookingProps> = ({
-  servicos,
-  storeId: propStoreId,
-}) => {
-  // Estados básicos de agendamento
-  const [date, setDate] = useState<string>(""); // Formato "YYYY-MM-DD"
+const SalonBooking: React.FC<SalonBookingProps> = ({ servicos, storeId: propStoreId }) => {
+  const [date, setDate] = useState<string>("");
   const [slots, setSlots] = useState<Slot[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
   const [customerName, setCustomerName] = useState<string>("");
-  const [customerPhone, setCustomerPhone] = useState<string>("");  // Visível para todos
-  const [customerEmail, setCustomerEmail] = useState<string>("");  // Somente não logados editam
+  const [customerPhone, setCustomerPhone] = useState<string>("");
+  const [customerEmail, setCustomerEmail] = useState<string>("");
   const [selectedServiceId, setSelectedServiceId] = useState<string>("");
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [bookingLoading, setBookingLoading] = useState(false);
 
-  // Lojas e serviços
-  const [stores, setStores] = useState<
-    Array<{ id: string; name: string; calendarId: string; address: string }>
-  >([]);
-  const [selectedStoreId, setSelectedStoreId] = useState<string>(
-    propStoreId || ""
-  );
-  // IDs dos serviços relacionados à loja selecionada
+  const [stores, setStores] = useState<Array<{ id: string; name: string; calendarId: string; address: string }>>([]);
+  const [selectedStoreId, setSelectedStoreId] = useState<string>(propStoreId || "");
   const [storeServicesList, setStoreServicesList] = useState<string[]>([]);
 
-  // Usuário do contexto
   const { user } = useUser();
 
-  // =======================
-  //  1) Buscar dados da loja
-  // =======================
   useEffect(() => {
     async function fetchStores() {
       try {
         const snap = await getDocs(collection(db, "stores"));
         const storeList = snap.docs.map((doc) => ({
           id: doc.id,
-          ...(doc.data() as {
-            name: string;
-            calendarId: string;
-            address: string;
-          }),
+          ...(doc.data() as { name: string; calendarId: string; address: string }),
         }));
         setStores(storeList);
       } catch (error) {
@@ -77,17 +52,11 @@ const SalonBooking: React.FC<SalonBookingProps> = ({
     fetchStores();
   }, []);
 
-  // ===========================================
-  //  2) Buscar telefone no Firestore se logado
-  // ===========================================
   useEffect(() => {
     async function fetchLoggedUserPhone() {
       if (user?.email) {
         try {
-          const qRef = query(
-            collection(db, "usuariosConsumidor"),
-            where("email", "==", user.email)
-          );
+          const qRef = query(collection(db, "usuariosConsumidor"), where("email", "==", user.email));
           const snap = await getDocs(qRef);
           if (!snap.empty) {
             const docData = snap.docs[0].data();
@@ -103,9 +72,6 @@ const SalonBooking: React.FC<SalonBookingProps> = ({
     fetchLoggedUserPhone();
   }, [user]);
 
-  // ==================================
-  //  3) Carregar serviços da loja (N:N)
-  // ==================================
   useEffect(() => {
     if (!selectedStoreId) {
       setStoreServicesList([]);
@@ -113,14 +79,9 @@ const SalonBooking: React.FC<SalonBookingProps> = ({
     }
     async function fetchStoreServices() {
       try {
-        const qRef = query(
-          collection(db, "storeServices"),
-          where("storeId", "==", selectedStoreId)
-        );
+        const qRef = query(collection(db, "storeServices"), where("storeId", "==", selectedStoreId));
         const snap = await getDocs(qRef);
-        const relations = snap.docs.map(
-          (doc) => doc.data() as { serviceId: string }
-        );
+        const relations = snap.docs.map((doc) => doc.data() as { serviceId: string });
         setStoreServicesList(relations.map((r) => r.serviceId));
       } catch (error) {
         console.error("Erro ao buscar storeServices:", error);
@@ -129,7 +90,6 @@ const SalonBooking: React.FC<SalonBookingProps> = ({
     fetchStoreServices();
   }, [selectedStoreId]);
 
-  // Função para atualizar os slots
   const refreshSlots = async () => {
     if (!date || !selectedStoreId) {
       setSlots([]);
@@ -147,27 +107,13 @@ const SalonBooking: React.FC<SalonBookingProps> = ({
     }
   };
 
-  // ====================================================
-  //  4) Gera slots quando data ou loja selecionada mudam
-  // ====================================================
   useEffect(() => {
     refreshSlots();
   }, [date, selectedStoreId]);
 
-  // ==============================
-  //  5) Confirmar Agendamento
-  // ==============================
   const handleBooking = async () => {
-    if (
-      !date ||
-      !selectedSlot ||
-      !customerName ||
-      !selectedServiceId ||
-      !selectedStoreId
-    ) {
-      alert(
-        "Preencha todos os campos obrigatórios, selecione um horário e uma loja!"
-      );
+    if (!date || !selectedSlot || !customerName || !selectedServiceId || !selectedStoreId) {
+      alert("Preencha todos os campos obrigatórios, selecione um horário e uma loja!");
       return;
     }
     if (!user && (!customerEmail || !customerPhone)) {
@@ -177,33 +123,21 @@ const SalonBooking: React.FC<SalonBookingProps> = ({
 
     setBookingLoading(true);
     try {
-      const servicoSelecionado = servicos.find(
-        (s) => s.id === selectedServiceId
-      );
-      if (!servicoSelecionado) {
-        throw new Error("Serviço não encontrado.");
-      }
-      const slotHour = selectedSlot.start
-        .getHours()
-        .toString()
-        .padStart(2, "0");
-      const slotMinute = selectedSlot.start
-        .getMinutes()
-        .toString()
-        .padStart(2, "0");
+      const servicoSelecionado = servicos.find((s) => s.id === selectedServiceId);
+      if (!servicoSelecionado) throw new Error("Serviço não encontrado.");
+
+      const slotHour = selectedSlot.start.getHours().toString().padStart(2, "0");
+      const slotMinute = selectedSlot.start.getMinutes().toString().padStart(2, "0");
       const timeStr = `${slotHour}:${slotMinute}`;
 
-      const selectedStore = stores.find(
-        (store) => store.id === selectedStoreId
-      );
-      const storeAddress =
-        selectedStore?.address || "Endereço não definido";
+      const selectedStore = stores.find((store) => store.id === selectedStoreId);
+      const storeAddress = selectedStore?.address || "Endereço não definido";
 
       const adminPhone = await getAdminPhoneNumber();
 
       const calendarBody = {
-        date,         // "YYYY-MM-DD"
-        time: timeStr, // "HH:MM"
+        date,
+        time: timeStr,
         clientName: customerName,
         clientEmail: user ? user.email : customerEmail,
         clientPhone: customerPhone,
@@ -218,6 +152,7 @@ const SalonBooking: React.FC<SalonBookingProps> = ({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(calendarBody),
       });
+
       const resData = await response.json();
       if (!resData.success) throw new Error(resData.error);
 
@@ -230,6 +165,7 @@ Loja: ${selectedStore?.name}
 Endereço: ${storeAddress}
 Email: ${user ? user.email : customerEmail}
 Telefone: ${customerPhone}`;
+
       const encodedMsg = encodeURIComponent(msg);
       const whatsappURL = `https://wa.me/${adminPhone}?text=${encodedMsg}`;
       window.open(whatsappURL, "_blank");
@@ -251,7 +187,23 @@ Telefone: ${customerPhone}`;
         });
       }
 
-      // Atualiza os slots para remover o horário agendado
+      // ✅ Salvar agendamento no Firestore
+      await addDoc(collection(db, "agendamentos"), {
+        userId: user ? user.uid : null,
+        userEmail: user ? user.email : customerEmail,
+        customerName,
+        customerPhone,
+        serviceId: selectedServiceId,
+        serviceName: servicoSelecionado.nome,
+        serviceDuration: servicoSelecionado.tempo,
+        storeId: selectedStoreId,
+        storeName: selectedStore?.name || "",
+        storeAddress,
+        date,
+        time: timeStr,
+        createdAt: new Date(),
+      });
+
       await refreshSlots();
 
       alert("Agendamento confirmado!");
@@ -263,26 +215,16 @@ Telefone: ${customerPhone}`;
     }
   };
 
-  // ============================
-  //  Renderização do componente
-  // ============================
   return (
     <Card className="max-w-md mx-auto p-6 bg-white shadow-lg rounded-xl">
       <CardContent>
         <h2 className="text-xl font-bold mb-4">Agendar Horário</h2>
 
-        {/* Campo de Nome */}
         <div className="mb-4">
           <Label className="block mb-2">Nome</Label>
-          <Input
-            type="text"
-            value={customerName}
-            onChange={(e) => setCustomerName(e.target.value)}
-            className="w-full"
-          />
+          <Input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} className="w-full" />
         </div>
 
-        {/* Selecionar Loja */}
         <div className="mb-4">
           <Label className="block mb-2">Loja</Label>
           <select
@@ -299,7 +241,6 @@ Telefone: ${customerPhone}`;
           </select>
         </div>
 
-        {/* Campo de Data */}
         <div className="mb-4">
           <Label className="block mb-2">Data</Label>
           <Input
@@ -313,7 +254,6 @@ Telefone: ${customerPhone}`;
           />
         </div>
 
-        {/* Exibição dos Slots */}
         {date && (
           <div className="mb-4">
             <Label className="block mb-2">Horários Disponíveis:</Label>
@@ -322,18 +262,10 @@ Telefone: ${customerPhone}`;
             ) : slots.length > 0 ? (
               <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
                 {slots.map((slot, index) => {
-                  const slotHour = slot.start
-                    .getHours()
-                    .toString()
-                    .padStart(2, "0");
-                  const slotMinute = slot.start
-                    .getMinutes()
-                    .toString()
-                    .padStart(2, "0");
+                  const slotHour = slot.start.getHours().toString().padStart(2, "0");
+                  const slotMinute = slot.start.getMinutes().toString().padStart(2, "0");
                   const slotTimeStr = `${slotHour}:${slotMinute}`;
-                  const isSelected =
-                    selectedSlot &&
-                    selectedSlot.start.getTime() === slot.start.getTime();
+                  const isSelected = selectedSlot && selectedSlot.start.getTime() === slot.start.getTime();
 
                   return (
                     <button
@@ -345,9 +277,7 @@ Telefone: ${customerPhone}`;
                       style={{
                         padding: "0.5rem 0.75rem",
                         borderRadius: "4px",
-                        border: isSelected
-                          ? "2px solid #0070f3"
-                          : "1px solid #ccc",
+                        border: isSelected ? "2px solid #0070f3" : "1px solid #ccc",
                         backgroundColor: slot.available ? "#fff" : "#f0f0f0",
                         color: "#333",
                         cursor: slot.available ? "pointer" : "not-allowed",
@@ -364,7 +294,6 @@ Telefone: ${customerPhone}`;
           </div>
         )}
 
-        {/* Campo de Serviço - Filtra somente serviços da loja selecionada */}
         <div className="mb-4">
           <Label className="block mb-2">Serviço</Label>
           <select
@@ -383,48 +312,27 @@ Telefone: ${customerPhone}`;
           </select>
         </div>
 
-        {/* Se não estiver logado, pede Email; se logado, mostra no input */}
         {!user ? (
           <div className="mb-4">
             <Label className="block mb-2">Email do Cliente</Label>
-            <Input
-              type="email"
-              value={customerEmail}
-              onChange={(e) => setCustomerEmail(e.target.value)}
-              className="w-full"
-            />
+            <Input type="email" value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} className="w-full" />
           </div>
         ) : (
           <div className="mb-4">
             <Label className="block mb-2">Email do Cliente</Label>
-            <Input
-              type="email"
-              value={user.email}
-              readOnly
-              className="w-full"
-            />
+            <Input type="email" value={user.email} readOnly className="w-full" />
           </div>
         )}
 
-
-        {/* Campo de Telefone (sempre visível) */}
         <div className="mb-4">
           <Label className="block mb-2">WhatsApp do Cliente</Label>
-          <Input
-            type="tel"
-            value={customerPhone}
-            onChange={(e) => setCustomerPhone(e.target.value)}
-            className="w-full"
-          />
+          <Input type="tel" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} className="w-full" />
         </div>
 
         <Button
           onClick={handleBooking}
           disabled={bookingLoading}
-          className={`w-full ${bookingLoading
-              ? "bg-gray-400"
-              : "bg-green-500 hover:bg-green-600 text-white"
-            }`}
+          className={`w-full ${bookingLoading ? "bg-gray-400" : "bg-green-500 hover:bg-green-600 text-white"}`}
         >
           {bookingLoading ? "Agendando..." : "Confirmar Agendamento"}
         </Button>
